@@ -4,10 +4,17 @@ itk_module_test()
 #changed when this module is renamed.
 
 set(${itk-module}Tests
-  itkEmptyTest.cxx
+  itkObjectnessMeasureImageFilterTest.cxx
 )
+
+
+set(BASELINE_ROOT ${ITK_DATA_ROOT}/Baseline)
+set(TEMP ${ITK_TEST_OUTPUT_DIR})
 
 CreateTestDriver(${itk-module}  "${${itk-module}-Test_LIBRARIES}" "${${itk-module}Tests}")
 
-itk_add_test(NAME itkDeleteMeEmptyTest
-  COMMAND ${itk-module}TestDriver itkEmptyTest "argument1" "..." )
+itk_add_test(NAME ObjectnessMeasureImageFilterTest1
+  COMMAND ${itk-module}TestDriver itkObjectnessMeasureImageFilterTest
+    DATA{Input/itkHessianToObjectnessMeasureImageFilterTest.mha}
+    ${TEMP}/ObjectnessMeasureImageFilterTest1.nii
+    )
