@@ -4,11 +4,12 @@ language: cpp
 env:
   global:
   - ExternalData_OBJECT_STORES="${HOME}/.ExternalData"
-  - ITK_REPOSITORY="${ExternalData_OBJECT_STORES}/ITK.git"
-  - ITK_MODULE=SimpleITKFiltersModule
-  - ITK_TAG=master
   - PROJ_SRC="${TRAVIS_BUILD_DIR}"
-  - CMAKE_DOWNLOAD_FILE: cmake-3.6.0-Linux-x86_64.sh
+  - ITK_REPOSITORY_REMOTE="https://ITK.org/ITK.git"
+  - ITK_REPOSITORY="${ExternalData_OBJECT_STORES}/ITK.git"
+  - ITK_MODULE_NAME=SimpleITKFiltersModule
+  - ITK_TAG=master
+  - ITK_SRC="${HOME}/ITK"
 
 cache:
   directories:
@@ -21,8 +22,6 @@ matrix:
       sudo: required
     - os: osx
       osx_image: xcode7.3
-    - os: osx
-      osx_image: xcode6.4
 
 
 before_install:
@@ -31,12 +30,10 @@ before_install:
 
 before_script:
    - cmake --version
-   - ( cd ${ExternalData_OBJECT_STORES} && if [[ ! -e ${ITK_REPOSITORY} ]]; then git clone --bare https://ITK.org/ITK.git; fi && cd ${ITK_REPOSITORY} && git fetch origin )
-   - cd ${PROJ_SRC} && git clone ${ITK_REPOSITORY} -b "${ITK_TAG}" && ( cd ITK/Modules/Remote && ln -s ${PROJ_SRC} module )
-   - mkdir -p bld
+   - env
+   - ( cd ${ExternalData_OBJECT_STORES} && if [[ ! -e ${ITK_REPOSITORY} ]]; then git clone --bare ${ITK_REPOSITORY_REMOTE}; fi && cd ${ITK_REPOSITORY} && git fetch origin )
+   - git clone --single-branch ${ITK_REPOSITORY} -b "${ITK_TAG}" "${ITK_SRC}" && ( cd ${ITK_SRC}/Modules/Remote && ln -s ${PROJ_SRC} ${ITK_MODULE_NAME} )
+   - ( cd ${PROJ_SRC}/test && git clone --single-branch ${ITK_REPOSITORY} -b dashboard dashboard)
 
 script:
-   - cd bld
-   - cmake "-DMAKE_CXX_FLAGS=-std=c++11" -D "Module_${ITK_MODULE}:BOOL=ON" -D  BUILD_TESTING:BOOL=ON "${PROJ_SRC}/ITK"
-   - make -j 2 "${ITK_MODULE}-all"
-   - ctest -L "${ITK_MODULE}"
+   - ctest -V -S ${PROJ_SRC}/test/ci/dashboard.cmake
