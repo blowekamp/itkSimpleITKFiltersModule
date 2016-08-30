@@ -18,7 +18,6 @@ endif()
 # define the dependencies of the include module and the tests
 itk_module(SimpleITKFiltersModule
   DEPENDS
-    ITKReview
     ITKImageFeature
   TEST_DEPENDS
     ITKTestKernel
