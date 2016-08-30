@@ -103,9 +103,9 @@ protected:
     :  m_Alpha( 0.5 ),
        m_Beta( 0.5 ),
        m_Gamma( 5.0 ),
-       m_ScaleObjectnessMeasure( true ),
        m_ObjectDimension( 1 ),
-       m_BrightObject( true )
+       m_BrightObject( true ),
+       m_ScaleObjectnessMeasure( true )
     { }
 
   ~ObjectnessMeasureImageFilter() {}
