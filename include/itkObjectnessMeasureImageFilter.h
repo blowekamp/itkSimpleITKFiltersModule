@@ -28,7 +28,7 @@ namespace itk
 {
 /** \class ObjectnessMeasureImageFilter
  *
- * This is a composite filter which combine a computation of the
+ * This is a composite filter which combines a computation of the
  * hessian with computation of the objectness.
  *
  * \ingroup SimpleITKFiltersModule
@@ -111,7 +111,7 @@ protected:
   ~ObjectnessMeasureImageFilter() {}
 
 
-  void EnlargeOutputRequestedRegion(DataObject *output)
+  void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE
     {
       output->SetRequestedRegionToLargestPossibleRegion();
     }
@@ -157,6 +157,17 @@ protected:
       this->GraftOutput(objectnessFilter->GetOutput());
     }
 
+  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+    {
+      Superclass::PrintSelf(os, indent);
+
+      os << indent << "Alpha: " << m_Alpha << std::endl;
+      os << indent << "Beta: " << m_Beta << std::endl;
+      os << indent << "Gamma: " << m_Gamma << std::endl;
+      os << indent << "ScaleObjectnessMeasure: " << m_ScaleObjectnessMeasure << std::endl;
+      os << indent << "ObjectDimension: " << m_ObjectDimension << std::endl;
+      os << indent << "BrightObject: " << m_BrightObject << std::endl;
+    }
 
 private:
   ITK_DISALLOW_COPY_AND_ASSIGN(ObjectnessMeasureImageFilter);
