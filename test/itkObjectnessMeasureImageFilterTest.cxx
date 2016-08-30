@@ -26,12 +26,17 @@ int itkObjectnessMeasureImageFilterTest(int argc, char *argv[])
 {
   if( argc < 3 )
     {
-    std::cerr << "Usage: " << argv[0] << " inputImage outputImage" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " inputImage outputImage [ObjectDimension] [Bright/Dark]" << std::endl;
     return EXIT_FAILURE;
     }
   const char *inputImageFileName = argv[1];
   const char *outputImageFileName  = argv[2];
 
+  const unsigned int objectDimension = (argc >= 3) ? atoi(argv[3]) : 3;
+  const bool brightObject = (argc >= 4) ? atoi(argv[4]) : true;
+  const double alphaValue = 0.5;
+  const double betaValue = 0.5;
+  const double gammaValue = 0.5;
 
   const unsigned int Dimension = 2;
   typedef float                              PixelType;
@@ -45,12 +50,18 @@ int itkObjectnessMeasureImageFilterTest(int argc, char *argv[])
   typedef itk::ObjectnessMeasureImageFilter<ImageType, ImageType> FilterType;
   FilterType::Pointer filter =  FilterType::New();
   filter->SetInput(reader->GetOutput());
+  filter->SetAlpha(alphaValue);
+  filter->SetBeta(betaValue);
+  filter->SetGamma(gammaValue);
+  filter->SetBrightObject(brightObject);
+  filter->SetObjectDimension(objectDimension);
+  filter->SetScaleObjectnessMeasure(false);
 
   FilterWatcher watcher(filter);
 
   typedef itk::ImageFileWriter<ImageType> WriterType;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput(reader->GetOutput());
+  writer->SetInput(filter->GetOutput());
   writer->SetFileName( outputImageFileName );
   writer->Update();
 
