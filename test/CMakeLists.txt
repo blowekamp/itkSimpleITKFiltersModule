@@ -18,7 +18,7 @@ itk_add_test(NAME itkObjectnessMeasureImageFilterTest1
   COMMAND ${itk-module}TestDriver
     --compareIntensityTolerance .001
     --compare
-      DATA{Baseline/ObjectnessMeasureImageFilterTest1.mha}
+      DATA{Baseline/ObjectnessMeasureImageFilterTest1.nii}
       ${TEMP}/ObjectnessMeasureImageFilterTestOutput1.nii
     itkObjectnessMeasureImageFilterTest
       DATA{Input/DSA.png}
@@ -30,7 +30,7 @@ itk_add_test(NAME itkObjectnessMeasureImageFilterTest2
   COMMAND ${itk-module}TestDriver
     --compareIntensityTolerance .001
     --compare
-      DATA{Baseline/ObjectnessMeasureImageFilterTest2.mha}
+      DATA{Baseline/ObjectnessMeasureImageFilterTest2.nii}
       ${TEMP}/ObjectnessMeasureImageFilterTestOutput2.nii
     itkObjectnessMeasureImageFilterTest
       DATA{Input/DSA.png}
