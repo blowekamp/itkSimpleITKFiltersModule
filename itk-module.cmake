@@ -21,6 +21,7 @@ itk_module(SimpleITKFiltersModule
     ITKImageFeature
   TEST_DEPENDS
     ITKTestKernel
+    ITKImageSources
   DESCRIPTION
     "${DOCUMENTATION}"
   ${_EXCLUDE}

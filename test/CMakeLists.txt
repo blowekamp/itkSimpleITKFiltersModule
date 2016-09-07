@@ -5,6 +5,7 @@ itk_module_test()
 
 set(${itk-module}Tests
   itkObjectnessMeasureImageFilterTest.cxx
+  itkHessianImageFilterTest.cxx
 )
 
 
@@ -36,3 +37,6 @@ itk_add_test(NAME itkObjectnessMeasureImageFilterTest2
       ${TEMP}/ObjectnessMeasureImageFilterTestOutput2.nii
       0 0
     )
+
+add_test(NAME itkHessianImageFilterTest
+      COMMAND ${itk-module}TestDriver itkHessianImageFilterTest )
