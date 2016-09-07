@@ -19,7 +19,7 @@
 #include "itkGaussianImageSource.h"
 #include "itkImageFileReader.h"
 
-int itkHessianImageFilterTest( int argc, char *argv[] )
+int itkHessianImageFilterTest( int , char *[] )
 {
   const unsigned int Dimension = 3;
   typedef itk::Image< float, Dimension > ImageType;
