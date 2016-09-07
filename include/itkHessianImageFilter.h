@@ -27,7 +27,13 @@ namespace itk
 
 /**
  * \class HessianImageFilter
- * \brief Computes the Hessian matrix by central differences
+ * \brief Computes the Hessian matrix of an image by central differences
+ *
+ * This filter directly computes the derivatives of an image for
+ * the Hessian and does not convolve with a Gaussian kernel.
+ *
+ * \sa HessianRecursiveGaussianImageFilter
+ * \sa SmoothingRecursiveGaussianImageFilter
  *
  * \ingroup Streamed
  * \ingroup SimpleITKFiltersModule
