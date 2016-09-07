@@ -55,7 +55,7 @@ int itkHessianImageFilterTest( int , char *[] )
 
 
   --idx[0];
-  std::cout << hessian->GetOutput()->GetPixel( idx ) << std::endl ;
+  std::cout << hessian->GetOutput()->GetPixel( idx ) << std::endl;
 
   --idx[1];
   std::cout << hessian->GetOutput()->GetPixel( idx )  << std::endl;
