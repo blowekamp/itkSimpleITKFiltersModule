@@ -19,6 +19,7 @@
 #include "itkTestingMacros.h"
 #include "itkFilterWatcher.h"
 #include "itkObjectnessMeasureImageFilter.h"
+#include "itkSmoothingRecursiveGaussianImageFilter.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 
@@ -39,17 +40,21 @@ int itkObjectnessMeasureImageFilterTest(int argc, char *argv[])
   const double gammaValue = 0.5;
 
   const unsigned int Dimension = 2;
-  typedef float                              PixelType;
+  typedef double                             PixelType;
   typedef itk::Image< PixelType, Dimension > ImageType;
 
   typedef itk::ImageFileReader<ImageType> ReaderType;
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( inputImageFileName );
 
+  typedef itk::SmoothingRecursiveGaussianImageFilter<ImageType, ImageType> SmoothingFilterType;
+  SmoothingFilterType::Pointer smoothing = SmoothingFilterType::New();
+  smoothing->SetSigma(1.0);
+  smoothing->SetInput(reader->GetOutput());
 
   typedef itk::ObjectnessMeasureImageFilter<ImageType, ImageType> FilterType;
   FilterType::Pointer filter =  FilterType::New();
-  filter->SetInput(reader->GetOutput());
+  filter->SetInput(smoothing->GetOutput());
   filter->SetAlpha(alphaValue);
   filter->SetBeta(betaValue);
   filter->SetGamma(gammaValue);

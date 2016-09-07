@@ -19,7 +19,7 @@
 #define itkObjectnessMeasureImageFilter_hxx
 
 #include "itkObjectnessMeasureImageFilter.h"
-#include "itkHessianRecursiveGaussianImageFilter.h"
+#include "itkHessianImageFilter.h"
 #include "itkHessianToObjectnessMeasureImageFilter.h"
 #include "itkProgressAccumulator.h"
 
@@ -66,14 +66,15 @@ progress->SetMiniPipelineFilter( this );
 typename InputImageType::Pointer localInput = InputImageType::New();
 localInput->Graft( this->GetInput() );
 
-typedef HessianRecursiveGaussianImageFilter<InputImageType> HessianFilterType;
-typedef typename HessianFilterType::OutputImageType         HessianImageType;
+  typename InputImageType::Pointer localInput = InputImageType::New();
+  localInput->Graft( this->GetInput() );
 
-typename HessianFilterType::Pointer hessianFilter = HessianFilterType::New();
+  typedef HessianImageFilter<InputImageType>          HessianFilterType;
+  typedef typename HessianFilterType::OutputImageType HessianImageType;
 
-hessianFilter->SetInput( localInput );
+  typename HessianFilterType::Pointer hessianFilter = HessianFilterType::New();
 
-hessianFilter->SetSigma( 1.0 );
+  hessianFilter->SetInput( localInput );
 
 
 typedef HessianToObjectnessMeasureImageFilter< HessianImageType, OutputImageType > ObjectnessFilterType;
