@@ -40,3 +40,27 @@ itk_add_test(NAME itkObjectnessMeasureImageFilterTest2
 
 add_test(NAME itkHessianImageFilterTest
       COMMAND ${itk-module}TestDriver itkHessianImageFilterTest )
+
+
+#
+# GTest based tests
+#
+
+find_package( GTest )
+
+# we always include CMake's GTest to get the gtest_add_tests method
+
+set(${itk-module}GTests
+  itkSliceImageFilterTest.cxx
+)
+
+add_executable(${itk-module}GTestDriver ${${itk-module}GTests})
+
+
+target_link_libraries(${itk-module}GTestDriver
+  ${${itk-module}-Test_LIBRARIES}
+  ${GTEST_LIBRARIES}
+  ${GTEST_MAIN_LIBRARIES}
+  )
+target_include_directories(${itk-module}GTestDriver PRIVATE ${GTEST_INCLUDE_DIRS})
+gtest_add_tests(${itk-module}GTestDriver "" ${${itk-module}GTests})
