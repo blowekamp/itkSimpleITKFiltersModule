@@ -46,7 +46,16 @@ add_test(NAME itkHessianImageFilterTest
 # GTest based tests
 #
 
-find_package( GTest )
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../CMake")
+
+option(USE_SYSTEM_GTEST "Use system installed gtest" ${ITK_USE_SYSTEM_LIBRARIES})
+mark_as_advanced(USE_SYSTEM_GTEST)
+if(NOT USE_SYSTEM_GTEST)
+  include(External_GTest)
+  include(UseGTest)
+else()
+  find_package( GTest )
+endif()
 
 # we always include CMake's GTest to get the gtest_add_tests method
 
@@ -56,11 +65,17 @@ set(${itk-module}GTests
 
 add_executable(${itk-module}GTestDriver ${${itk-module}GTests})
 
+if(NOT USE_SYSTEM_GTEST)
+  add_dependencies(${itk-module}GTestDriver GTest)
+endif()
 
 target_link_libraries(${itk-module}GTestDriver
   ${${itk-module}-Test_LIBRARIES}
   ${GTEST_LIBRARIES}
   ${GTEST_MAIN_LIBRARIES}
   )
-target_include_directories(${itk-module}GTestDriver PRIVATE ${GTEST_INCLUDE_DIRS})
+
+target_include_directories(${itk-module}GTestDriver PRIVATE
+  ${GTEST_INCLUDE_DIRS})
+
 gtest_add_tests(${itk-module}GTestDriver "" ${${itk-module}GTests})
