@@ -15,10 +15,6 @@ if("${CTEST_CMAKE_GENERATOR}" STREQUAL "")
   set(CTEST_CMAKE_GENERATOR "Visual Studio 9 2008")
 endif()
 
-#set(CTEST_BUILD_NAME "VS-${platform}-$ENV{CONFIGURATION}_${what}_${commit}")
-set(CTEST_BUILD_FLAGS "")
+set(CTEST_BUILD_NAME "VS-${platform}-$ENV{CONFIGURATION}_${what}_${commit}")
 
-
-set(dashboard_binary_name "python-cmake-buildsystem/build")
-set(dashboard_model Experimental)
-set(dashboard_track AppVeyor-CI)
+include("${CTEST_SCRIPT_DIRECTORY}/common_dashboard.cmake")
