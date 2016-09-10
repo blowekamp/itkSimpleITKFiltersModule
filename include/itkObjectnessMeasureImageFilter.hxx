@@ -49,7 +49,7 @@ ObjectnessMeasureImageFilter< TInputImage,TOutputImage >
 template< typename TInputImage, typename TOutputImage >
 void
 ObjectnessMeasureImageFilter< TInputImage,TOutputImage >
-::EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE
+::EnlargeOutputRequestedRegion(DataObject *output)
 {
   output->SetRequestedRegionToLargestPossibleRegion();
 }
@@ -98,7 +98,7 @@ ObjectnessMeasureImageFilter< TInputImage,TOutputImage >
 template< typename TInputImage, typename TOutputImage >
 void
 ObjectnessMeasureImageFilter< TInputImage,TOutputImage >
-::PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 
