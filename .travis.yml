@@ -34,4 +34,4 @@ before_script:
    - bash -x ${PROJ_SRC}/test/ci/CacheAndUpdateITK.sh
 
 script:
-   - ctest -V -S ${PROJ_SRC}/test/ci/dashboard.cmake
+   - ctest -V -S ${PROJ_SRC}/test/ci/travis_dashboard.cmake
