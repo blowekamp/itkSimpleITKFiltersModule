@@ -68,6 +68,7 @@ add_executable(${itk-module}GTestDriver ${${itk-module}GTests})
 if(NOT USE_SYSTEM_GTEST)
   add_dependencies(${itk-module}GTestDriver GTest)
 endif()
+add_dependencies(${itk-module}-all ${itk-module}GTestDriver)
 
 target_link_libraries(${itk-module}GTestDriver
   ${${itk-module}-Test_LIBRARIES}
