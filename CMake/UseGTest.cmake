@@ -45,7 +45,10 @@
 #  License text for the above reference.)
 #
 # Thanks to Daniel Blezek <blezek@gmail.com> for the GTEST_ADD_TESTS code
-
+#
+# ADDITIONS
+# Set test label to itk_module if defined.
+#
 function(GTEST_ADD_TESTS executable extra_args)
     if(NOT ARGN)
         message(FATAL_ERROR "Missing ARGN: Read the documentation for GTEST_ADD_TESTS")
@@ -74,6 +77,16 @@ function(GTEST_ADD_TESTS executable extra_args)
             continue()
           endif()
           add_test(NAME ${test_name} COMMAND ${executable} --gtest_filter=${test_name} ${extra_args})
+
+#
+# Addition from upstream CMake version.
+#
+          if(itk-module)
+            set_property(TEST ${test_name} PROPERTY LABELS ${itk-module})
+          endif()
+#
+#
+#
         endforeach()
     endforeach()
 endfunction()
