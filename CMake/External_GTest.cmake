@@ -55,7 +55,11 @@ ExternalProject_Add(${proj}
       ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include <INSTALL_DIR>/include
 )
 
+
 set(GTEST_ROOT ${GTEST_install_dir})
 set(GTEST_INCLUDE_DIRS "${GTEST_install_dir}/include")
-set(GTEST_LIBRARIES "${GTEST_install_dir}/lib/libgtest.a")
-set(GTEST_MAIN_LIBRARIES "${GTEST_install_dir}/lib/libgtest_main.a")
+set(GTEST_LIBRARIES_DIR "${GTEST_install_dir}/lib/")
+set(GTEST_LIBRARIES "gtest")
+set(GTEST_MAIN_LIBRARIES "gtest_main")
+set(GTEST_BOTH_LIBRARIES ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
+

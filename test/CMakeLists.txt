@@ -53,6 +53,7 @@ mark_as_advanced(USE_SYSTEM_GTEST)
 if(NOT USE_SYSTEM_GTEST)
   include(External_GTest)
   include(UseGTest)
+  link_directories("${GTEST_LIBRARIES_DIR}")
 else()
   find_package( GTest )
 endif()
@@ -72,8 +73,7 @@ add_dependencies(${itk-module}-all ${itk-module}GTestDriver)
 
 target_link_libraries(${itk-module}GTestDriver
   ${${itk-module}-Test_LIBRARIES}
-  ${GTEST_LIBRARIES}
-  ${GTEST_MAIN_LIBRARIES}
+  ${GTEST_BOTH_LIBRARIES}
   )
 
 target_include_directories(${itk-module}GTestDriver PRIVATE
