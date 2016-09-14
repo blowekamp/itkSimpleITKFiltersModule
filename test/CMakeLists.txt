@@ -62,6 +62,7 @@ endif()
 
 set(${itk-module}GTests
   itkSliceImageFilterTest.cxx
+  itkFunctorsTest.cxx
 )
 
 add_executable(${itk-module}GTestDriver ${${itk-module}GTests})
