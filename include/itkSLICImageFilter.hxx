@@ -104,7 +104,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
 void
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
-::BeforeThreadedGenerateData() ITK_OVERRIDE
+::BeforeThreadedGenerateData()
 {
   itkDebugMacro("Starting BeforeThreadedGenerateData");
 
@@ -543,7 +543,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
 void
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
-::AfterThreadedGenerateData() ITK_OVERRIDE
+::AfterThreadedGenerateData()
 {
   // This method should clean up memory allocated during execution
 
