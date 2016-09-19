@@ -352,7 +352,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
 void
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
-::ThreadedPerturbClusters(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId)
+::ThreadedPerturbClusters(const OutputImageRegionType & outputRegionForThread, ThreadIdType itkNotUsed(threadId) )
 {
 
   const InputImageType *inputImage = this->GetInput();
