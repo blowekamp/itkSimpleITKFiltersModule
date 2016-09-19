@@ -6,6 +6,7 @@ itk_module_test()
 set(${itk-module}Tests
   itkObjectnessMeasureImageFilterTest.cxx
   itkHessianImageFilterTest.cxx
+  itkSLICImageFilterTest.cxx
 )
 
 
@@ -41,6 +42,11 @@ itk_add_test(NAME itkObjectnessMeasureImageFilterTest2
 add_test(NAME itkHessianImageFilterTest
       COMMAND ${itk-module}TestDriver itkHessianImageFilterTest )
 
+itk_add_test(NAME itkSLICImageFilterTest1
+  COMMAND ${itk-module}TestDriver
+   itkSLICImageFilterTest
+   DATA{Input/VM1111Shrink-LAB.mha}
+   ${TEMP}/itkSLICImageFilterTest1Output.png 25 )
 
 #
 # GTest based tests
