@@ -117,6 +117,21 @@ protected:
 
   DistanceType Distance(const ClusterType &cluster, const InputPixelType &v, const PointType &pt);
 
+  inline static void CreateClusterPoint( const InputPixelType &v,
+                                         vnl_vector<ClusterComponentType> &outCluster,
+                                         const unsigned int numberOfComponents,
+                                         const ImageBase<ImageDimension> *img,
+                                         const typename ImageBase<ImageDimension>::IndexType &idx )
+    {
+      NumericTraits<InputPixelType>::AssignToArray(v, outCluster);
+      typename ImageBase<ImageDimension>::PointType pt;
+      img->TransformIndexToPhysicalPoint(idx, pt);
+      for(unsigned int i = 0; i < ImageDimension; ++i)
+        {
+        outCluster[numberOfComponents+i] = pt[i];
+        }
+    }
+
 private:
   SLICImageFilter(const Self &);    //purposely not implemented
   void operator=(const Self &);     //purposely not implemented

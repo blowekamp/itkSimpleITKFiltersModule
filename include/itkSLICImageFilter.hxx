@@ -169,18 +169,13 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       // construct vector as reference to the scalar array
       ClusterType cluster( numberOfClusterComponents, &m_Clusters[cnt*numberOfClusterComponents] );
 
-      const InputPixelType &v = it.Get();
-      for(unsigned int i = 0; i < numberOfComponents; ++i)
-        {
-        cluster[i] = v[i];
-        }
-      const IndexType & idx = it.GetIndex();
-      typename InputImageType::PointType pt;
-      shrunkImage->TransformIndexToPhysicalPoint(idx, pt);
-      for(unsigned int i = 0; i < ImageDimension; ++i)
-        {
-        cluster[numberOfComponents+i] = pt[i];
-        }
+      // create cluster point
+      CreateClusterPoint(it.Get(),
+                         cluster,
+                         numberOfComponents,
+                         shrunkImage,
+                         it.GetIndex() );
+
       ++it;
       ++cnt;
       }
@@ -317,13 +312,13 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   // calculate new centers
   OutputIteratorType itOut = OutputIteratorType(outputImage, updateRegionForThread);
   InputConstIteratorType itIn = InputConstIteratorType(inputImage, updateRegionForThread);
+  vnl_vector<ClusterComponentType> incr_cluster;
+  incr_cluster.set_size(numberOfClusterComponents);
   while(!itOut.IsAtEnd() )
     {
     const size_t         ln =  updateRegionForThread.GetSize(0);
     for (unsigned x = 0; x < ln; ++x)
       {
-      const IndexType &idx = itOut.GetIndex();
-      const InputPixelType &v = itIn.Get();
       const typename OutputImageType::PixelType l = itOut.Get();
 
       std::pair<typename UpdateClusterMap::iterator, bool> r =  clusterMap.insert(std::make_pair(l,UpdateCluster()));
@@ -336,17 +331,14 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
         }
       ++r.first->second.count;
 
-      for(unsigned int i = 0; i < numberOfComponents; ++i)
-        {
-        cluster[i] += v[i];
-        }
+      // create cluster point
+      CreateClusterPoint(itIn.Get(),
+                         incr_cluster,
+                         numberOfComponents,
+                         inputImage,
+                         itOut.GetIndex() );
 
-      typename InputImageType::PointType pt;
-      inputImage->TransformIndexToPhysicalPoint(idx, pt);
-      for(unsigned int i = 0; i < ImageDimension; ++i)
-        {
-        cluster[numberOfComponents+i] += pt[i];
-        }
+      cluster += incr_cluster;
 
       ++itIn;
       ++itOut;
@@ -455,18 +447,12 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       ++it;
       }
 
-    const InputPixelType &v = inputImage->GetPixel(minIdx);
-    for(unsigned int i = 0; i < numberOfComponents; ++i)
-      {
-      cluster[i] = v[i];
-      }
-
-    inputImage->TransformIndexToPhysicalPoint(minIdx, pt);
-    for(unsigned int i = 0; i < ImageDimension; ++i)
-      {
-      cluster[numberOfComponents+i] = pt[i];
-      }
-
+    // create cluster point
+    CreateClusterPoint(inputImage->GetPixel(minIdx),
+                       cluster,
+                       numberOfComponents,
+                       inputImage,
+                       minIdx );
 
     }
 
