@@ -31,6 +31,21 @@
 namespace itk
 {
 
+/** \class SLICImageFilter
+ * \brief Simple Linear Iterative Clustering (SLIC) Superpixel algorithm
+ *
+ * The Simple Linear Iterative Clustering (SLIC) Superpixel performs
+ * joint domain ( image intensity and physical location ) clustering
+ * of the input image to form a superpixel labeled output image.
+ *
+ * This implementation is multi-threaded, works in n-dimensions with
+ * m-component images. The filter works with VectorImage, scalar
+ * Images, and Images of FixedArrays.
+ *
+ * R. Achanta, A. Shaji, K. Smith, and A. Lucchi. Slic superpixels. Technical report, 2010.
+ *
+ * \ingroup SimpleITKFiltersModule
+ */
 template< typename TInputImage, typename TOutputImage, typename TDistancePixel = float>
 class SLICImageFilter:
     public ImageToImageFilter< TInputImage, TOutputImage >

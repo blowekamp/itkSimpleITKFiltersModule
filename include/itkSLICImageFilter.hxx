@@ -216,6 +216,12 @@ void
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 ::ThreadedUpdateDistanceAndLabel(const OutputImageRegionType & outputRegionForThread, ThreadIdType  itkNotUsed(threadId))
 {
+  // This method modifies the OutputImage and the DistanceImage only
+  // in the outputRegionForThread. It searches for any cluster, whose
+  // search radius is within the output region for the thread. Then it
+  // updates DistnaceImage with the minimum distance and the
+  // corresponding label id in the output image.
+  //
   typedef ImageScanlineConstIterator< InputImageType > InputConstIteratorType;
   typedef ImageScanlineIterator< DistanceImageType >   DistanceIteratorType;
 
@@ -247,6 +253,8 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     localRegion.SetIndex(idx);
     localRegion.GetModifiableSize().Fill(1u);
     localRegion.PadByRadius(searchRadius);
+
+    // Check cluster is in the output region for this thread.
     if (!localRegion.Crop(outputRegionForThread))
       {
       continue;
@@ -354,6 +362,8 @@ void
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 ::ThreadedPerturbClusters(const OutputImageRegionType & outputRegionForThread, ThreadIdType itkNotUsed(threadId) )
 {
+  // Update the m_Clusters array by moving cluster center to the
+  // lowest gradient position in a 1-radius neighborhood.
 
   const InputImageType *inputImage = this->GetInput();
 
