@@ -75,7 +75,8 @@ public:
   typedef typename InputImageType::PointType PointType;
   // assume variable length vector right now
   typedef double                               ClusterComponentType;
-  typedef vnl_vector_ref<ClusterComponentType> ClusterType;
+  typedef vnl_vector<ClusterComponentType>     ClusterType;
+  typedef vnl_vector_ref<ClusterComponentType> RefClusterType;
 
   typedef typename OutputImageType::RegionType   OutputImageRegionType;
 
@@ -118,7 +119,7 @@ protected:
   DistanceType Distance(const ClusterType &cluster, const InputPixelType &v, const PointType &pt);
 
   inline static void CreateClusterPoint( const InputPixelType &v,
-                                         vnl_vector<ClusterComponentType> &outCluster,
+                                         ClusterType &outCluster,
                                          const unsigned int numberOfComponents,
                                          const ImageBase<ImageDimension> *img,
                                          const typename ImageBase<ImageDimension>::IndexType &idx )

@@ -167,7 +167,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     for (unsigned x = 0; x < ln; ++x)
       {
       // construct vector as reference to the scalar array
-      ClusterType cluster( numberOfClusterComponents, &m_Clusters[cnt*numberOfClusterComponents] );
+      RefClusterType cluster( numberOfClusterComponents, &m_Clusters[cnt*numberOfClusterComponents] );
 
       // create cluster point
       CreateClusterPoint(it.Get(),
@@ -233,7 +233,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
     {
-    ClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
+    RefClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
     typename InputImageType::RegionType localRegion;
     typename InputImageType::PointType pt;
     IndexType idx;
@@ -395,7 +395,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   for (size_t clusterIndex = 0; clusterIndex*numberOfClusterComponents < m_Clusters.size(); ++clusterIndex)
     {
     // cluster is a reference to array
-    ClusterType cluster(numberOfClusterComponents, &m_Clusters[clusterIndex*numberOfClusterComponents]);
+    RefClusterType cluster(numberOfClusterComponents, &m_Clusters[clusterIndex*numberOfClusterComponents]);
     typename InputImageType::RegionType localRegion;
     typename InputImageType::PointType pt;
     IndexType idx;
@@ -510,7 +510,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
           const size_t clusterIdx = clusterIter->first;
           clusterCount[clusterIdx] += clusterIter->second.count;
 
-          ClusterType cluster(numberOfClusterComponents, &m_Clusters[clusterIdx*numberOfClusterComponents]);
+          RefClusterType cluster(numberOfClusterComponents, &m_Clusters[clusterIdx*numberOfClusterComponents]);
           cluster += clusterIter->second.cluster;
           }
         }
@@ -520,10 +520,10 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
         {
 
-        ClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
+        RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
         cluster /= clusterCount[i];
 
-        ClusterType oldCluster(numberOfClusterComponents, &m_OldClusters[i*numberOfClusterComponents]);
+        RefClusterType oldCluster(numberOfClusterComponents, &m_OldClusters[i*numberOfClusterComponents]);
         l1Residual += Distance(cluster,oldCluster);
 
         }
