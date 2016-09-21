@@ -540,24 +540,29 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
           }
         }
 
-      // average, l1
-      double l1Residual = 0.0;
+      // average
       for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
         {
 
         RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
         cluster /= clusterCount[i];
-
-        RefClusterType oldCluster(numberOfClusterComponents, &m_OldClusters[i*numberOfClusterComponents]);
-        l1Residual += Distance(cluster,oldCluster);
-
         }
 
-      std::cout << "L1 residual: " << std::sqrt(l1Residual) << std::endl;
+     // residual
+#if !defined NDEBUG
+      double l1Residual = 0.0;
+      for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
+        {
+
+        RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
+        RefClusterType oldCluster(numberOfClusterComponents, &m_OldClusters[i*numberOfClusterComponents]);
+        l1Residual += Distance(cluster,oldCluster);
+        }
+      itkDebugMacro( << "L1 residual: " << std::sqrt(l1Residual) );
+#endif
       }
     // while error <= threshold
     }
-
 
 }
 
