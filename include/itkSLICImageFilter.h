@@ -99,6 +99,8 @@ protected:
 
   void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
 
+  void VerifyInputInformation ()  ITK_OVERRIDE;
+
   /** Generate full output and require full input */
   void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
 

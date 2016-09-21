@@ -94,6 +94,31 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
 void
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
+::VerifyInputInformation ()
+{
+  Superclass::VerifyInputInformation();
+
+  const InputImageType *inputImage = this->GetInput();
+
+  typename InputImageType::SizeType size = inputImage->GetLargestPossibleRegion().GetSize();
+
+  size_t numberOfClusters = 1u;
+
+  for ( unsigned int i = 0; i < ImageDimension; ++i )
+    {
+    numberOfClusters *= Math::Ceil<size_t>( double(size[i])/m_SuperGridSize[i] );
+    }
+
+  if (numberOfClusters >= static_cast<size_t>(itk::NumericTraits<typename OutputImageType::PixelType>::max()))
+    {
+    itkExceptionMacro( "Too many clusters for output pixel type!" );
+    }
+
+}
+
+template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
+void
+SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 ::EnlargeOutputRequestedRegion(DataObject *output)
 {
   Superclass::EnlargeOutputRequestedRegion(output);
