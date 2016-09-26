@@ -384,9 +384,6 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   const InputImageType *inputImage = this->GetInput();
 
-  const unsigned int ImageDimension = TInputImage::ImageDimension;
-
-
   const unsigned int numberOfComponents = inputImage->GetNumberOfComponentsPerPixel();
   const unsigned int numberOfClusterComponents = numberOfComponents+ImageDimension;
 
