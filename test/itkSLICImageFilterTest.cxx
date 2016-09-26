@@ -20,6 +20,7 @@
 #include "itkVectorImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include "itkTimeProbe.h"
 
 namespace
 {
@@ -40,6 +41,16 @@ typename FilterType::Pointer filter = FilterType::New();
 filter->SetInput(reader->GetOutput());
 filter->SetSuperGridSize(gridSize);
 filter->DebugOn();
+
+reader->Update();
+
+itk::TimeProbe clock;
+clock.Start();
+filter->Update();
+clock.Stop();
+
+std::cout << "Total: " << clock.GetTotal() << std::endl;
+
 
 typedef itk::ImageFileWriter<OutputImageType> WriterType;
 typename WriterType::Pointer writer = WriterType::New();
