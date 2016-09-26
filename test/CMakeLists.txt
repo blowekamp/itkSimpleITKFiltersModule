@@ -44,6 +44,8 @@ add_test(NAME itkHessianImageFilterTest
 
 itk_add_test(NAME itkSLICImageFilterTest1
   COMMAND ${itk-module}TestDriver
+   --compare  DATA{Baseline/itkSLICImageFilterTest1Output.png}
+              ${TEMP}/itkSLICImageFilterTest1Output.png
    itkSLICImageFilterTest
    DATA{Input/VM1111Shrink-LAB.mha}
    ${TEMP}/itkSLICImageFilterTest1Output.png 25 )
