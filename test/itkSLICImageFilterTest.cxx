@@ -26,7 +26,10 @@ namespace
 {
 
 template<unsigned int Dimension>
-void itkSLICImageFilter(const std::string &inFileName, const std::string &outFileName, const unsigned int gridSize)
+void itkSLICImageFilter(const std::string &inFileName,
+                        const std::string &outFileName,
+                        const unsigned int gridSize,
+                        const float proximityWeight)
 {
 
 typedef itk::VectorImage<float, Dimension>    InputImageType;
@@ -41,6 +44,7 @@ typename FilterType::Pointer filter = FilterType::New();
 filter->SetInput(reader->GetOutput());
 filter->SetSuperGridSize(gridSize);
 filter->DebugOn();
+filter->SetSpatialProximityWeight(proximityWeight);
 
 reader->Update();
 
@@ -66,12 +70,13 @@ int itkSLICImageFilterTest(int argc, char *argv[])
 {
   if (argc < 3)
     {
-    std::cerr << "Expected FileName [gridSize]\n";
+    std::cerr << "Expected inFileName outFileName [gridSize]\n";
     return EXIT_FAILURE;
     }
 
 
   const unsigned int gridSize = (argc > 3) ? atoi(argv[3] ) : 20;
+  const float proximityWeight = (argc > 4) ? atof(argv[4] ) : 10.0;
   const char *inFileName = argv[1];
   const char *outFileName = argv[2];
 
@@ -88,10 +93,10 @@ int itkSLICImageFilterTest(int argc, char *argv[])
   {
     case 1:
     case 2:
-      itkSLICImageFilter<2>(inFileName, outFileName, gridSize);
+      itkSLICImageFilter<2>(inFileName, outFileName, gridSize, proximityWeight);
       break;
     case 3:
-      itkSLICImageFilter<3>(inFileName, outFileName, gridSize);
+      itkSLICImageFilter<3>(inFileName, outFileName, gridSize, proximityWeight);
       break;
     default:
       std::cerr << "Unsupported Dimensions: " << Dimension << std::endl;
