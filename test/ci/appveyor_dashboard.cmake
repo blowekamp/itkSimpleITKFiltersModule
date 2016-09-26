@@ -20,7 +20,8 @@ set(platform $ENV{PLATFORM})
 set(CTEST_BUILD_NAME "$ENV{ITK_MODULE_NAME}-VS-${platform}-$ENV{CONFIGURATION}_${what}_${commit}")
 
 list(APPEND CTEST_NOTES_FILES
-  "$ENV{PROJ_SRC}/appveyor.yml"
+#  The PROJ_SRC env contains another %env% which is not being evaluated
+#  "$ENV{PROJ_SRC}/appveyor.yml"
   )
 
 include("${CTEST_SCRIPT_DIRECTORY}/common_dashboard.cmake")
