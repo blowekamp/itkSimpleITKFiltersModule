@@ -61,7 +61,7 @@ public:
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(ExtractImageFilter, ImageToImageFilter);
+  itkTypeMacro(SLICImageFilter, ImageToImageFilter);
 
   /** Image type information. */
   typedef TInputImage                         InputImageType;
