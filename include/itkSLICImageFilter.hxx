@@ -160,7 +160,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   typename InputImageType::SizeType  strips, size, totalErr, accErr;
   typename InputImageType::IndexType startIdx, idx;
 
-  typename InputImageType::RegionType region =  inputImage->GetLargestPossibleRegion();
+  typename InputImageType::RegionType region = inputImage->GetLargestPossibleRegion();
 
   size = region.GetSize();
 
@@ -209,7 +209,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
                          numberOfComponents,
                          inputImage,
                          idx );
-      itkDebugMacro("Initial cluster " << cnt << " : " << cluster << " idx: " << idx );
+      itkDebugMacro("Initial cluster " << cnt-1 << " : " << cluster << " idx: " << idx );
       accErr[0] += totalErr[0];
       idx[0] += m_SuperGridSize[0] + accErr[0]/strips[0];
       accErr[0] %= strips[0];
@@ -223,7 +223,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
                          numberOfComponents,
                          inputImage,
                          idx );
-      itkDebugMacro("Initial cluster " << cnt << " : " << cluster );
+      itkDebugMacro("Initial cluster " << cnt-1<< " : " << cluster );
 
     // increment the startIdx to next line on sample grid
     idx[0] = startIdx[0];
@@ -297,7 +297,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
     {
-    RefClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
+    const RefClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
     typename InputImageType::RegionType localRegion;
     typename InputImageType::PointType pt;
     IndexType idx;
@@ -538,10 +538,10 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   itkDebugMacro("Entering Main Loop");
   for(unsigned int loopCnt = 0;  loopCnt<m_MaximumNumberOfIterations; ++loopCnt)
     {
-    itkDebugMacro("Iteration :" << loopCnt);
 
     if (threadId == 0)
       {
+      itkDebugMacro("Iteration :" << loopCnt);
       m_DistanceImage->FillBuffer(NumericTraits<typename DistanceImageType::PixelType>::max());
       }
     m_Barrier->Wait();
@@ -565,7 +565,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       // reduce the produce cluster maps per-thread into m_Cluster array
       for(size_t i = 0; i < m_UpdateClusterPerThread.size(); ++i)
         {
-        UpdateClusterMap &clusterMap = m_UpdateClusterPerThread[i];
+        const UpdateClusterMap &clusterMap = m_UpdateClusterPerThread[i];
         for(typename UpdateClusterMap::const_iterator clusterIter = clusterMap.begin(); clusterIter != clusterMap.end(); ++clusterIter)
           {
           const size_t clusterIdx = clusterIter->first;
@@ -579,9 +579,11 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       // average
       for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
         {
-
-        RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
-        cluster /= clusterCount[i];
+        if (clusterCount[i] != 0)
+          {
+          RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
+          cluster /= clusterCount[i];
+          }
         }
 
      // residual
