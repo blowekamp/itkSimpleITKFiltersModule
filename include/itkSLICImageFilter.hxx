@@ -416,15 +416,17 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
 void
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
-::ThreadedPerturbClusters(const OutputImageRegionType & outputRegionForThread, ThreadIdType itkNotUsed(threadId) )
+::ThreadedPerturbClusters(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId )
 {
-  // Update the m_Clusters array by moving cluster center to the
+  // Update the m_Clusters array by spiting the threads over the
+  // cluster indexes, moving cluster center to the
   // lowest gradient position in a 1-radius neighborhood.
 
   const InputImageType *inputImage = this->GetInput();
 
   const unsigned int numberOfComponents = inputImage->GetNumberOfComponentsPerPixel();
   const unsigned int numberOfClusterComponents = numberOfComponents+ImageDimension;
+  const size_t numberOfClusters = m_Clusters.size()/numberOfClusterComponents;
 
   itk::Size<ImageDimension> radius;
   radius.Fill( 1 );
@@ -439,21 +441,29 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   typedef ConstNeighborhoodIterator< TInputImage > NeighborhoodType;
 
   // get center and dimension strides for iterator neighborhoods
-  NeighborhoodType it( radius, inputImage, outputRegionForThread );
+  NeighborhoodType it( radius, inputImage, outputRegionForThread);
   center = it.Size()/2;
   for ( unsigned int i = 0; i < ImageDimension; ++i )
     {
     stride[i] = it.GetStride(i);
     }
 
-
   const typename InputImageType::SpacingType spacing = inputImage->GetSpacing();
 
-  typedef typename NumericTraits<InputPixelType>::RealType GradientType;
-  GradientType G;
+  // Split the clusters up over threads, updating m_Clusters
+  ThreadIdType numberOfThreads = this->GetNumberOfThreads();
 
+  if ( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
+    {
+    numberOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
+    }
 
-  for (size_t clusterIndex = 0; clusterIndex*numberOfClusterComponents < m_Clusters.size(); ++clusterIndex)
+  // ceiling of number of clusters divided by actual number of threads
+  const size_t strideCluster = 1 + ((numberOfClusters - 1) / numberOfThreads);
+  size_t clusterIndex = strideCluster*threadId;
+  const size_t stopCluster = std::min(numberOfClusters, clusterIndex+strideCluster);
+
+  for (; clusterIndex < stopCluster; ++clusterIndex)
     {
     // cluster is a reference to array
     RefClusterType cluster(numberOfClusterComponents, &m_Clusters[clusterIndex*numberOfClusterComponents]);
@@ -467,15 +477,9 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       }
     inputImage->TransformPhysicalPointToIndex(pt, idx);
 
-    if (!outputRegionForThread.IsInside(idx))
-      {
-      continue;
-      }
-
     localRegion.SetIndex(idx);
     localRegion.GetModifiableSize().Fill(1u);
     localRegion.PadByRadius(searchRadius);
-
 
     it.SetRegion( localRegion );
 
@@ -483,9 +487,11 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
     IndexType minIdx = idx;
 
+    typedef typename NumericTraits<InputPixelType>::RealType GradientType;
+    GradientType G;
+
     while ( !it.IsAtEnd() )
       {
-
       G = it.GetPixel(center + stride[0]);
       G -= it.GetPixel(center - stride[0]);
       G /= 2.0*spacing[0];
@@ -509,11 +515,11 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       }
 
     // create cluster point
-    CreateClusterPoint(inputImage->GetPixel(minIdx),
-                       cluster,
-                       numberOfComponents,
-                       inputImage,
-                       minIdx );
+     CreateClusterPoint(inputImage->GetPixel(minIdx),
+                        cluster,
+                        numberOfComponents,
+                        inputImage,
+                        minIdx );
 
     }
 
