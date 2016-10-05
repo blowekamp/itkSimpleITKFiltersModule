@@ -487,25 +487,24 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
     IndexType minIdx = idx;
 
-    typedef typename NumericTraits<InputPixelType>::RealType GradientType;
-    GradientType G;
+    double gNorm;
+    vnl_vector<ClusterComponentType> A(numberOfComponents), B(numberOfComponents);
 
     while ( !it.IsAtEnd() )
       {
-      G = it.GetPixel(center + stride[0]);
-      G -= it.GetPixel(center - stride[0]);
-      G /= 2.0*spacing[0];
 
-      for ( unsigned int i = 1; i < ImageDimension; i++ )
+      // Use the 1-norm of the Jacobian for the "Gradient Magnitude"
+      // of single or multi-component images.
+      gNorm = 0;
+      for ( unsigned int i = 0; i < ImageDimension; i++ )
         {
-        GradientType temp = it.GetPixel(center + stride[i]);
-        temp -= it.GetPixel(center - stride[i]);
-        temp /= 2.0*spacing[i];
-        // todo need to square?
-        G += temp;
+        NumericTraits<InputPixelType>::AssignToArray(it.GetPixel(center + stride[i]), A);
+        NumericTraits<InputPixelType>::AssignToArray(it.GetPixel(center - stride[i]), B);
+        A -= B;
+        A /= spacing[i]; // omitting constant 2
+        gNorm += A.one_norm();
         }
 
-      const double gNorm = G.GetSquaredNorm();
       if ( gNorm < minG)
         {
         minG = gNorm;
