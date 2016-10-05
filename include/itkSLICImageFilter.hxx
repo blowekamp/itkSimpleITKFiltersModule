@@ -35,6 +35,9 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 ::SLICImageFilter()
   : m_MaximumNumberOfIterations( (ImageDimension > 2) ? 5 : 10),
     m_SpatialProximityWeight( 10.0 ),
+    m_LabelConnectivityEnforce(true),
+    m_LabelConnectivityMinimumSize(0.25),
+    m_LabelConnectivityRelabelSequential(false),
     m_NumberOfThreadsUsed(1),
     m_Barrier(Barrier::New())
 {
@@ -254,6 +257,8 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   m_DistanceImage->SetBufferedRegion( region );
   m_DistanceImage->Allocate();
 
+  m_MarkerImage = ITK_NULLPTR;
+
   const typename InputImageType::SpacingType spacing = inputImage->GetSpacing();
 
   for (unsigned int i = 0; i < ImageDimension; ++i)
@@ -264,6 +269,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
 
   m_UpdateClusterPerThread.resize(m_NumberOfThreadsUsed);
+  m_MissedLabelsPerThread.resize(m_NumberOfThreadsUsed);
 
   this->Superclass::BeforeThreadedGenerateData();
 }
@@ -305,7 +311,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       {
       pt[d] = cluster[numberOfComponents+d];
       }
-    //std::cout << "Cluster " << i << "@" << pt <<": " << cluster << std::endl;
+
     inputImage->TransformPhysicalPointToIndex(pt, idx);
 
     localRegion.SetIndex(idx);
@@ -530,7 +536,6 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   itkDebugMacro("Perturb cluster centers");
   ThreadedPerturbClusters(outputRegionForThread,threadId);
-  m_Barrier->Wait();
 
   itkDebugMacro("Entering Main Loop");
   for(unsigned int loopCnt = 0;  loopCnt<m_MaximumNumberOfIterations; ++loopCnt)
@@ -599,6 +604,132 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     // while error <= threshold
     }
 
+  if(m_LabelConnectivityEnforce && !m_LabelConnectivityRelabelSequential)
+    {
+
+    m_Barrier->Wait();
+    if (threadId == 0)
+      {
+      m_DistanceImage = ITK_NULLPTR;
+
+      m_MarkerImage = MarkerImageType::New();
+      m_MarkerImage->CopyInformation(inputImage);
+      m_MarkerImage->SetBufferedRegion( region );
+      m_MarkerImage->Allocate();
+      m_MarkerImage->FillBuffer(-2.0);
+      }
+    m_Barrier->Wait();
+
+    const size_t superGirdArea =
+      std::accumulate( &m_SuperGridSize[0],
+                       &m_SuperGridSize[0]+ImageDimension, size_t(1),
+                       std::multiplies<size_t>() );
+
+    // Split the clusters up over threads, updating m_Marker map
+    // with visited regions, centered and connected with the cluster
+
+    // ceiling of number of clusters divided by actual number of threads
+    const size_t numberOfClusters = m_Clusters.size() / numberOfClusterComponents;
+    const size_t stride = 1 + ((numberOfClusters - 1) / m_NumberOfThreadsUsed );
+
+
+    std::list<LabelPixelType> &missedLabels = this->m_MissedLabelsPerThread[threadId];
+
+    size_t i = stride*threadId;
+    const size_t stopCluster = std::min(numberOfClusters, i+stride);
+
+    for (; i < stopCluster; ++i)
+      {
+      RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
+      typename InputImageType::PointType pt;
+      IndexType idx;
+
+      for (unsigned int d = 0; d < ImageDimension; ++d)
+        {
+        pt[d] = cluster[numberOfComponents+d];
+        }
+
+      m_MarkerImage->TransformPhysicalPointToIndex(pt,idx);
+
+      // count
+      const size_t count = this->FillCluster(idx, i, -1);
+
+      if ( count > m_LabelConnectivityMinimumSize*superGirdArea )
+        {
+        this->FillCluster(idx, i, 1, i);
+        }
+      else
+        {
+        missedLabels.push_back(i);
+        }
+      }
+
+    }
+
+
+}
+
+template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
+size_t
+SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
+::FillCluster(const IndexType &idx,
+              size_t label,
+              int relabel,
+              LabelPixelType outLabel )
+{
+
+    OutputImageType *outputImage = this->GetOutput();
+
+    std::vector<IndexType> idxStack;
+    // todo reserve
+
+    const typename OutputImageType::RegionType region = outputImage->GetBufferedRegion();
+
+    size_t count = 0;
+    IndexType tempIdx = idx;
+    if ( m_MarkerImage->GetPixel(tempIdx) < relabel
+         && outputImage->GetPixel(tempIdx) == label)
+      {
+      ++count;
+      m_MarkerImage->SetPixel(tempIdx, relabel);
+      idxStack.push_back(tempIdx);
+      if (relabel > 0)
+        {
+        outputImage->SetPixel(tempIdx, outLabel);
+        }
+      }
+
+    while( !idxStack.empty() )
+      {
+      tempIdx = idxStack.back();
+      idxStack.pop_back();
+
+      for ( unsigned int i = 0; i < ImageDimension; i++ )
+          {
+          for ( int j = -1; j <= 1; j += 2 )
+            {
+            tempIdx[i] += j;
+            if (region.IsInside(tempIdx))
+              {
+               LabelPixelType &currLabel = outputImage->GetPixel(tempIdx);
+              if (currLabel == label
+                   && m_MarkerImage->GetPixel(tempIdx) < relabel )
+                {
+                ++count;
+                m_MarkerImage->SetPixel(tempIdx, relabel);
+                idxStack.push_back(tempIdx);
+                if (relabel > 0)
+                  {
+                  currLabel = outLabel;
+                  }
+                }
+
+              }
+            tempIdx[i] -= j;
+            }
+          }
+      }
+    return count;
 }
 
 template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
@@ -606,15 +737,141 @@ void
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 ::AfterThreadedGenerateData()
 {
-  // This method should clean up memory allocated during execution
 
   itkDebugMacro("Starting AfterThreadedGenerateData");
 
   m_DistanceImage = ITK_NULLPTR;
 
+  const InputImageType *inputImage = this->GetInput();
+  OutputImageType      *outputImage = this->GetOutput();
+
+  const typename OutputImageType::RegionType region = outputImage->GetBufferedRegion();
+
+  if (m_LabelConnectivityEnforce)
+    {
+
+    if (!m_MarkerImage)
+      {
+      m_MarkerImage = MarkerImageType::New();
+      m_MarkerImage->CopyInformation(inputImage);
+      m_MarkerImage->SetBufferedRegion( region );
+      m_MarkerImage->Allocate();
+      }
+
+    const size_t superGirdArea =
+      std::accumulate( &m_SuperGridSize[0],
+                       &m_SuperGridSize[0]+ImageDimension, size_t(1),
+                       std::multiplies<size_t>() );
+
+
+    std::list<LabelPixelType> missedLabels;
+    if (m_LabelConnectivityRelabelSequential)
+      {
+      missedLabels.push_back(0);
+      m_MarkerImage->FillBuffer(-1.0);
+      }
+    else
+      {
+      // merge missing labels, from threaded initial labeling
+      for (typename std::vector<std::list<LabelPixelType> >::iterator i =  m_MissedLabelsPerThread.begin();
+           i != m_MissedLabelsPerThread.end();
+           ++i)
+        {
+        missedLabels.splice(missedLabels.end(), *i);
+        }
+      const unsigned int   numberOfComponents = inputImage->GetNumberOfComponentsPerPixel();
+      const unsigned int   numberOfClusterComponents = numberOfComponents+ImageDimension;
+      const LabelPixelType numberOfClusters = static_cast<LabelPixelType>(m_Clusters.size() / numberOfClusterComponents);
+      missedLabels.push_back(numberOfClusters);
+      }
+
+    typedef ImageScanlineIterator< OutputImageType >      OutputIteratorType;
+    typedef ImageScanlineConstIterator< MarkerImageType > MarkerIteratorType;
+
+
+    OutputIteratorType outputIter(outputImage, region);
+    MarkerIteratorType markerIter(m_MarkerImage, region);
+    const size_t       ln =  region.GetSize(0);
+
+    // the next label to use for relabeling
+    LabelPixelType nextLabel = missedLabels.front();
+    missedLabels.pop_front();
+
+    while ( !outputIter.IsAtEnd() )
+      {
+      for( size_t x = 0; x < ln; ++x )
+        {
+        if ( markerIter.Get() == 0 )
+          {
+          std::cout << "unexpected 0 mark @ " << markerIter.GetIndex() << " label: " << outputIter.Get() << std::endl;
+          }
+        if ( markerIter.Get() < 0)
+          {
+          const LabelPixelType currLabel = outputIter.Get();
+
+          const size_t countLabel = this->FillCluster(outputIter.GetIndex(), currLabel, 0);
+
+          if (countLabel < m_LabelConnectivityMinimumSize*superGirdArea)
+            {
+
+            LabelPixelType replaceLabel =  0;
+            IndexType tempIdx = outputIter.GetIndex();
+            for ( unsigned int i = 0; i < ImageDimension; i++ )
+              {
+              for ( int j = -1; j <= 1; j += 2 )
+                {
+                tempIdx[i] += j;
+                 if (region.IsInside(tempIdx))
+                   {
+                   const LabelPixelType l = outputImage->GetPixel(tempIdx);
+                   if (m_MarkerImage->GetPixel(tempIdx) > 0)
+                     {
+                     replaceLabel = l;
+                     }
+                   }
+                 tempIdx[i] -= j;
+                }
+              }
+
+            itkDebugMacro("Replacing island with neighbor: " << outputIter.Get() << "->" << replaceLabel<<  " " << outputIter.GetIndex());
+            this->FillCluster(outputIter.GetIndex(), currLabel, 1, replaceLabel);
+            }
+          else
+            {
+
+            itkDebugMacro("Relabling big island of: " << m[outputIter.Get()] <<  " with new label: " << outputIter.Get() << "->" << nextLabel);
+            this->FillCluster(outputIter.GetIndex(), currLabel, 1, nextLabel);
+
+            if ( nextLabel != NumericTraits<LabelPixelType>::max() )
+              {
+              if (!missedLabels.empty())
+                {
+                nextLabel = missedLabels.front();
+                missedLabels.pop_front();
+                }
+              else
+                {
+                ++nextLabel;
+                }
+              }
+            }
+
+          }
+        ++outputIter;
+        ++markerIter;
+        }
+      outputIter.NextLine();
+      markerIter.NextLine();
+      }
+  }
+
+  // Clean up all algorithm variables
+  m_MarkerImage = ITK_NULLPTR;
+
   // cleanup
   std::vector<ClusterComponentType>().swap(m_Clusters);
   std::vector<ClusterComponentType>().swap(m_OldClusters);
+  std::vector<std::list<LabelPixelType> >().swap(m_MissedLabelsPerThread);
   for(unsigned int i = 0; i < m_UpdateClusterPerThread.size(); ++i)
     {
     UpdateClusterMap().swap(m_UpdateClusterPerThread[i]);

@@ -71,6 +71,7 @@ public:
   itkStaticConstMacro(ImageDimension, unsigned int, TInputImage::ImageDimension);
   typedef TDistancePixel                      DistanceType;
   typedef Image<DistanceType, ImageDimension> DistanceImageType;
+  typedef Image<signed char, ImageDimension>  MarkerImageType;
 
   typedef typename InputImageType::IndexType IndexType;
   typedef typename InputImageType::PointType PointType;
@@ -93,6 +94,16 @@ public:
   void SetSuperGridSize(unsigned int factor);
   void SetSuperGridSize(unsigned int i, unsigned int factor);
 
+  itkSetMacro(LabelConnectivityEnforce, bool);
+  itkGetMacro(LabelConnectivityEnforce, bool);
+  itkBooleanMacro(LabelConnectivityEnforce);
+
+  itkSetMacro(LabelConnectivityMinimumSize, float);
+  itkGetMacro(LabelConnectivityMinimumSize, float);
+
+  itkSetMacro(LabelConnectivityRelabelSequential, bool);
+  itkGetMacro(LabelConnectivityRelabelSequential, bool);
+  itkBooleanMacro(LabelConnectivityRelabelSequential);
 
 protected:
   SLICImageFilter();
@@ -116,6 +127,8 @@ protected:
   void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) ITK_OVERRIDE;
 
   void AfterThreadedGenerateData() ITK_OVERRIDE;
+
+  size_t FillCluster(const IndexType &idx, size_t label, int fill=0, LabelPixelType outLabel=0);
 
   DistanceType Distance(const ClusterType &cluster1, const ClusterType &cluster2);
 
@@ -143,6 +156,9 @@ private:
   SuperGridSizeType m_SuperGridSize;
   unsigned int      m_MaximumNumberOfIterations;
   double            m_SpatialProximityWeight;
+  bool              m_LabelConnectivityEnforce;
+  float             m_LabelConnectivityMinimumSize;
+  bool              m_LabelConnectivityRelabelSequential;
 
   FixedArray<double,ImageDimension> m_DistanceScales;
   std::vector<ClusterComponentType> m_Clusters;
@@ -154,14 +170,17 @@ private:
     vnl_vector<ClusterComponentType> cluster;
   };
 
-  typedef std::map<size_t, UpdateCluster> UpdateClusterMap;
+  typedef std::map<LabelPixelType, UpdateCluster> UpdateClusterMap;
 
   std::vector<UpdateClusterMap> m_UpdateClusterPerThread;
+
+  std::vector<std::list<LabelPixelType> > m_MissedLabelsPerThread;
 
   ThreadIdType m_NumberOfThreadsUsed;
 
   typename Barrier::Pointer           m_Barrier;
   typename DistanceImageType::Pointer m_DistanceImage;
+  typename MarkerImageType::Pointer   m_MarkerImage;
 };
 } // end namespace itk
 
