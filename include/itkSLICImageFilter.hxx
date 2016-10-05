@@ -35,6 +35,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 ::SLICImageFilter()
   : m_MaximumNumberOfIterations( (ImageDimension > 2) ? 5 : 10),
     m_SpatialProximityWeight( 10.0 ),
+    m_NumberOfThreadsUsed(1),
     m_Barrier(Barrier::New())
 {
   m_SuperGridSize.Fill(50);
@@ -135,6 +136,8 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   itkDebugMacro("Starting BeforeThreadedGenerateData");
 
 
+  // Compute actual number of threads used
+  {
   ThreadIdType numberOfThreads = this->GetNumberOfThreads();
 
   if ( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
@@ -142,14 +145,12 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     numberOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
     }
 
-  // number of threads can be constrained by the region size, so call the
-  // SplitRequestedRegion to get the real number of threads which will be used
-  typename TOutputImage::RegionType splitRegion;  // dummy region - just to call
-  // the following method
+  typename TOutputImage::RegionType splitRegion;  // dummy region - just to call the following method
 
-  numberOfThreads = this->SplitRequestedRegion(0, numberOfThreads, splitRegion);
+  m_NumberOfThreadsUsed = this->SplitRequestedRegion(0, numberOfThreads, splitRegion);
+  }
 
-  m_Barrier->Initialize(numberOfThreads);
+  m_Barrier->Initialize(m_NumberOfThreadsUsed);
 
   const InputImageType *inputImage = this->GetInput();
 
@@ -264,7 +265,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     }
 
 
-  m_UpdateClusterPerThread.resize(numberOfThreads);
+  m_UpdateClusterPerThread.resize(m_NumberOfThreadsUsed);
 
   this->Superclass::BeforeThreadedGenerateData();
 }
@@ -450,16 +451,8 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   const typename InputImageType::SpacingType spacing = inputImage->GetSpacing();
 
-  // Split the clusters up over threads, updating m_Clusters
-  ThreadIdType numberOfThreads = this->GetNumberOfThreads();
-
-  if ( itk::MultiThreader::GetGlobalMaximumNumberOfThreads() != 0 )
-    {
-    numberOfThreads = std::min( this->GetNumberOfThreads(), itk::MultiThreader::GetGlobalMaximumNumberOfThreads() );
-    }
-
   // ceiling of number of clusters divided by actual number of threads
-  const size_t strideCluster = 1 + ((numberOfClusters - 1) / numberOfThreads);
+  const size_t strideCluster = 1 + ((numberOfClusters - 1) / m_NumberOfThreadsUsed);
   size_t clusterIndex = strideCluster*threadId;
   const size_t stopCluster = std::min(numberOfClusters, clusterIndex+strideCluster);
 

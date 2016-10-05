@@ -157,6 +157,8 @@ private:
 
   std::vector<UpdateClusterMap> m_UpdateClusterPerThread;
 
+  ThreadIdType m_NumberOfThreadsUsed;
+
   typename Barrier::Pointer           m_Barrier;
   typename DistanceImageType::Pointer m_DistanceImage;
 };
