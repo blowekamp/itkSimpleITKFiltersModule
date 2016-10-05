@@ -94,6 +94,9 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   os << indent << "SuperGridSize: " << m_SuperGridSize << std::endl;
   os << indent << "MaximumNumberOfIterations: " << m_MaximumNumberOfIterations << std::endl;
   os << indent << "SpatialProximityWeight: " << m_SpatialProximityWeight << std::endl;
+  os << indent << "LabelConnectivityEnforce: " << m_LabelConnectivityEnforce << std::endl;
+  os << indent << "LabelConnectivityMinimumSize: " << m_LabelConnectivityMinimumSize << std::endl;
+  os << indent << "LabelConnectivityRelabelSequential: " << m_LabelConnectivityRelabelSequential << std::endl;
 }
 
 template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
