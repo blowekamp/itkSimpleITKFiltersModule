@@ -62,6 +62,7 @@ writer->SetFileName(outFileName);
 writer->SetInput(filter->GetOutput());
 writer->Update();
 
+filter->Print(std::cout);
 
 }
 }

@@ -44,11 +44,21 @@ add_test(NAME itkHessianImageFilterTest
 
 itk_add_test(NAME itkSLICImageFilterTest1
   COMMAND ${itk-module}TestDriver
+   --with-threads 1
    --compare  DATA{Baseline/itkSLICImageFilterTest1Baseline.nii}
               ${TEMP}/itkSLICImageFilterTest1Output.nii
    itkSLICImageFilterTest
    DATA{Input/VM1111Shrink-LAB.mha}
    ${TEMP}/itkSLICImageFilterTest1Output.nii 25 )
+
+itk_add_test(NAME itkSLICImageFilterTest2
+  COMMAND ${itk-module}TestDriver
+   --with-threads 80
+   --compare  DATA{Baseline/itkSLICImageFilterTest1Baseline.nii}
+              ${TEMP}/itkSLICImageFilterTest2Output.nii
+   itkSLICImageFilterTest
+   DATA{Input/VM1111Shrink-LAB.mha}
+   ${TEMP}/itkSLICImageFilterTest2Output.nii 25 )
 
 #
 # GTest based tests
