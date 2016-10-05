@@ -194,8 +194,8 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
    itkDebugMacro("numberOfClusters: " << numberOfClusters );
 
   // allocate array of scalars
-  m_Clusters.resize(numberOfClusters*numberOfClusterComponents);
-  m_OldClusters.resize(numberOfClusters*numberOfClusterComponents);
+  std::vector<ClusterComponentType>(numberOfClusters*numberOfClusterComponents).swap(m_Clusters);
+  std::vector<ClusterComponentType>(numberOfClusters*numberOfClusterComponents).swap(m_OldClusters);
 
 
   size_t cnt = 0;
@@ -269,7 +269,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
 
   m_UpdateClusterPerThread.resize(m_NumberOfThreadsUsed);
-  m_MissedLabelsPerThread.resize(m_NumberOfThreadsUsed);
+  std::vector<std::list<LabelPixelType> >(m_NumberOfThreadsUsed).swap(m_MissedLabelsPerThread);
 
   this->Superclass::BeforeThreadedGenerateData();
 }
@@ -381,8 +381,8 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   // calculate new centers
   OutputIteratorType itOut = OutputIteratorType(outputImage, updateRegionForThread);
   InputConstIteratorType itIn = InputConstIteratorType(inputImage, updateRegionForThread);
-  vnl_vector<ClusterComponentType> incr_cluster;
-  incr_cluster.set_size(numberOfClusterComponents);
+  ClusterType incr_cluster(numberOfClusterComponents);
+
   while(!itOut.IsAtEnd() )
     {
     const size_t ln =  updateRegionForThread.GetSize(0);
