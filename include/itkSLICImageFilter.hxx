@@ -254,9 +254,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
   m_DistanceImage->SetBufferedRegion( region );
   m_DistanceImage->Allocate();
 
-
   const typename InputImageType::SpacingType spacing = inputImage->GetSpacing();
-  const double spacingNorm = spacing.GetNorm();
 
   for (unsigned int i = 0; i < ImageDimension; ++i)
     {
