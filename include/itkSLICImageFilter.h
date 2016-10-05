@@ -67,6 +67,7 @@ public:
   typedef TInputImage                         InputImageType;
   typedef typename InputImageType::PixelType  InputPixelType;
   typedef TOutputImage                        OutputImageType;
+  typedef typename OutputImageType::PixelType LabelPixelType;
   itkStaticConstMacro(ImageDimension, unsigned int, TInputImage::ImageDimension);
   typedef TDistancePixel                      DistanceType;
   typedef Image<DistanceType, ImageDimension> DistanceImageType;

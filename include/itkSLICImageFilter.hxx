@@ -111,7 +111,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     numberOfClusters *= Math::Ceil<size_t>( double(size[i])/m_SuperGridSize[i] );
     }
 
-  if (numberOfClusters >= static_cast<size_t>(itk::NumericTraits<typename OutputImageType::PixelType>::max()))
+  if (numberOfClusters >= static_cast<size_t>(itk::NumericTraits<LabelPixelType>::max()))
     {
     itkExceptionMacro( "Too many clusters for output pixel type!" );
     }
@@ -340,7 +340,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
         if (distance < distanceIter.Get() )
           {
           distanceIter.Set(distance);
-          outputImage->SetPixel(currentIdx, i);
+          outputImage->SetPixel(currentIdx, static_cast<LabelPixelType>(i));
           }
 
         ++distanceIter;
@@ -384,7 +384,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     const size_t ln =  updateRegionForThread.GetSize(0);
     for (size_t x = 0; x < ln; ++x)
       {
-      const typename OutputImageType::PixelType l = itOut.Get();
+      const LabelPixelType l = itOut.Get();
 
       std::pair<typename UpdateClusterMap::iterator, bool> r =  clusterMap.insert(std::make_pair(l,UpdateCluster()));
       ClusterType &cluster = r.first->second.cluster;
