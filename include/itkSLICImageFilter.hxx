@@ -214,7 +214,6 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       CreateClusterPoint(inputImage->GetPixel(idx),
                          cluster,
                          numberOfComponents,
-                         inputImage,
                          idx );
       itkDebugMacro("Initial cluster " << cnt-1 << " : " << cluster << " idx: " << idx );
       accErr[0] += totalErr[0];
@@ -228,7 +227,6 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       CreateClusterPoint(inputImage->GetPixel(idx),
                          cluster,
                          numberOfComponents,
-                         inputImage,
                          idx );
       itkDebugMacro("Initial cluster " << cnt-1<< " : " << cluster );
 
@@ -266,7 +264,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   for (unsigned int i = 0; i < ImageDimension; ++i)
     {
-    const double physicalGridSize = m_SuperGridSize[i]*spacing[i];
+    const double physicalGridSize = m_SuperGridSize[i];
     m_DistanceScales[i] = 1.0/physicalGridSize;
     }
 
@@ -307,15 +305,12 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     {
     const RefClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
     typename InputImageType::RegionType localRegion;
-    typename InputImageType::PointType pt;
     IndexType idx;
 
     for (unsigned int d = 0; d < ImageDimension; ++d)
       {
-      pt[d] = cluster[numberOfComponents+d];
+      idx[d] = cluster[numberOfComponents+d];
       }
-
-    inputImage->TransformPhysicalPointToIndex(pt, idx);
 
     localRegion.SetIndex(idx);
     localRegion.GetModifiableSize().Fill(1u);
@@ -340,10 +335,9 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
         {
         const IndexType &currentIdx = inputIter.GetIndex();
 
-        inputImage->TransformIndexToPhysicalPoint(currentIdx, pt);
         const double distance = this->Distance(cluster,
                                                inputIter.Get(),
-                                               pt );
+                                               currentIdx);
         if (distance < distanceIter.Get() )
           {
           distanceIter.Set(distance);
@@ -407,7 +401,6 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       CreateClusterPoint(itIn.Get(),
                          incr_cluster,
                          numberOfComponents,
-                         inputImage,
                          itOut.GetIndex() );
 
       cluster += incr_cluster;
@@ -468,14 +461,12 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     // cluster is a reference to array
     RefClusterType cluster(numberOfClusterComponents, &m_Clusters[clusterIndex*numberOfClusterComponents]);
     typename InputImageType::RegionType localRegion;
-    typename InputImageType::PointType pt;
     IndexType idx;
 
     for (unsigned int d = 0; d < ImageDimension; ++d)
       {
-      pt[d] = cluster[numberOfComponents+d];
+      idx[d] = cluster[numberOfComponents+d];
       }
-    inputImage->TransformPhysicalPointToIndex(pt, idx);
 
     localRegion.SetIndex(idx);
     localRegion.GetModifiableSize().Fill(1u);
@@ -517,7 +508,6 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
      CreateClusterPoint(inputImage->GetPixel(minIdx),
                         cluster,
                         numberOfComponents,
-                        inputImage,
                         minIdx );
 
     }
@@ -643,15 +633,12 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     for (; i < stopCluster; ++i)
       {
       RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
-      typename InputImageType::PointType pt;
       IndexType idx;
 
       for (unsigned int d = 0; d < ImageDimension; ++d)
         {
-        pt[d] = cluster[numberOfComponents+d];
+        idx[d] = cluster[numberOfComponents+d];
         }
-
-      m_MarkerImage->TransformPhysicalPointToIndex(pt,idx);
 
       // count
       const size_t count = this->FillCluster(idx, i, -1);

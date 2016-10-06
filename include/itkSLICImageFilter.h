@@ -136,23 +136,20 @@ protected:
 
   DistanceType Distance(const ClusterType &cluster,
                         const InputPixelType &v,
-                        const PointType &pt)
+                        const IndexType &idx)
     {
-      return Self::DistanceDispatched(cluster, v, pt);
+      return Self::DistanceDispatched(cluster, v, idx);
     }
 
   inline static void CreateClusterPoint( const InputPixelType &v,
                                          ClusterType &outCluster,
                                          const unsigned int numberOfComponents,
-                                         const ImageBase<ImageDimension> *img,
-                                         const typename ImageBase<ImageDimension>::IndexType &idx )
+                                         const IndexType &idx )
     {
       NumericTraits<InputPixelType>::AssignToArray(v, outCluster);
-      typename ImageBase<ImageDimension>::PointType pt;
-      img->TransformIndexToPhysicalPoint(idx, pt);
       for(unsigned int i = 0; i < ImageDimension; ++i)
         {
-        outCluster[numberOfComponents+i] = pt[i];
+        outCluster[numberOfComponents+i] = idx[i];
         }
     }
 
@@ -163,7 +160,7 @@ private:
   template<typename TPixelType>
   inline DistanceType DistanceDispatched(const ClusterType &cluster,
                                          const TPixelType &v,
-                                         const PointType &pt,
+                                         const IndexType &idx,
                                          mpl::FalseType isScalar = typename IsSame<TPixelType, typename itk::NumericTraits<InputPixelType>::ValueType>::Type() )
     {
       const unsigned int s = cluster.size();
@@ -178,7 +175,7 @@ private:
 
       for (unsigned int j = 0; j < ImageDimension; ++j, ++i)
         {
-        const DistanceType d = (cluster[i] - pt[j])  * m_DistanceScales[j];
+        const DistanceType d = (cluster[i] - idx[j])  * m_DistanceScales[j];
         d2 += d*d;
         }
       d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;
@@ -189,7 +186,7 @@ private:
 
   inline DistanceType DistanceDispatched(const ClusterType &cluster,
                                          const typename itk::NumericTraits<InputPixelType>::ValueType &v,
-                                         const PointType &pt )
+                                         const IndexType &idx )
     {
       const unsigned int s = cluster.size();
       DistanceType d1 = 0.0;
@@ -204,7 +201,7 @@ private:
 
       for (unsigned int j = 0; j < ImageDimension; ++j, ++i)
         {
-        const DistanceType d = (cluster[i] - pt[j])  * m_DistanceScales[j];
+        const DistanceType d = (cluster[i] - idx[j])  * m_DistanceScales[j];
         d2 += d*d;
         }
       d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;
