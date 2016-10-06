@@ -60,6 +60,12 @@ itk_add_test(NAME itkSLICImageFilterTest2
    DATA{Input/VM1111Shrink-LAB.mha}
    ${TEMP}/itkSLICImageFilterTest2Output.nii 25 )
 
+itk_add_test(NAME itkSLICImageFilterTest3
+  COMMAND ${itk-module}TestDriver
+   itkSLICImageFilterTest
+   DATA{Input/cthead1.png}
+   ${TEMP}/itkSLICImageFilterTest3Output.nii 20 )
+
 #
 # GTest based tests
 #
