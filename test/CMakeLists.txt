@@ -62,6 +62,8 @@ itk_add_test(NAME itkSLICImageFilterTest2
 
 itk_add_test(NAME itkSLICImageFilterTest3
   COMMAND ${itk-module}TestDriver
+    --compare  DATA{Baseline/itkSLICImageFilterTest3Baseline.nii}
+              ${TEMP}/itkSLICImageFilterTest3Output.nii
    itkSLICImageFilterTest
    DATA{Input/cthead1.png}
    ${TEMP}/itkSLICImageFilterTest3Output.nii 20 )
