@@ -196,6 +196,7 @@ private:
                                          const IndexType &idx,
                                          mpl::FalseType isScalar = typename IsSame<TPixelType, typename itk::NumericTraits<InputPixelType>::ValueType>::Type() )
     {
+      (void) isScalar;
       const unsigned int s = cluster.size();
       DistanceType d1 = 0.0;
       DistanceType d2 = 0.0;
@@ -221,7 +222,6 @@ private:
                                          const typename itk::NumericTraits<InputPixelType>::ValueType &v,
                                          const IndexType &idx )
     {
-      const unsigned int s = cluster.size();
       DistanceType d1 = 0.0;
       DistanceType d2 = 0.0;
       unsigned int i = 0;

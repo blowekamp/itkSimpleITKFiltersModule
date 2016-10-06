@@ -260,8 +260,6 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   m_MarkerImage = ITK_NULLPTR;
 
-  const typename InputImageType::SpacingType spacing = inputImage->GetSpacing();
-
   for (unsigned int i = 0; i < ImageDimension; ++i)
     {
     const double physicalGridSize = m_SuperGridSize[i];
