@@ -639,11 +639,11 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
         }
 
       // count
-      const size_t count = this->FillCluster(idx, i, -1);
+      const size_t count = this->RelabelClusterAndMark(idx, i, -1);
 
       if ( count > m_LabelConnectivityMinimumSize*superGirdArea )
         {
-        this->FillCluster(idx, i, 1, i);
+        this->RelabelClusterAndMark(idx, i, 1, i);
         }
       else
         {
@@ -659,9 +659,9 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
 size_t
 SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
-::FillCluster(const IndexType &idx,
-              size_t label,
-              int relabel,
+::RelabelClusterAndMark(const IndexType &idx,
+              LabelPixelType label,
+              MarkerPixelType relabel,
               LabelPixelType outLabel )
 {
 
@@ -796,7 +796,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
           {
           const LabelPixelType currLabel = outputIter.Get();
 
-          const size_t countLabel = this->FillCluster(outputIter.GetIndex(), currLabel, 0);
+          const size_t countLabel = this->RelabelClusterAndMark(outputIter.GetIndex(), currLabel, 0);
 
           if (countLabel < m_LabelConnectivityMinimumSize*superGirdArea)
             {
@@ -821,13 +821,13 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
               }
 
             itkDebugMacro("Replacing island with neighbor: " << outputIter.Get() << "->" << replaceLabel<<  " " << outputIter.GetIndex());
-            this->FillCluster(outputIter.GetIndex(), currLabel, 1, replaceLabel);
+            this->RelabelClusterAndMark(outputIter.GetIndex(), currLabel, 1, replaceLabel);
             }
           else
             {
 
             itkDebugMacro("Relabling big island of: " << m[outputIter.Get()] <<  " with new label: " << outputIter.Get() << "->" << nextLabel);
-            this->FillCluster(outputIter.GetIndex(), currLabel, 1, nextLabel);
+            this->RelabelClusterAndMark(outputIter.GetIndex(), currLabel, 1, nextLabel);
 
             if ( nextLabel != NumericTraits<LabelPixelType>::max() )
               {

@@ -72,6 +72,7 @@ public:
   itkStaticConstMacro(ImageDimension, unsigned int, TInputImage::ImageDimension);
   typedef TDistancePixel                      DistanceType;
   typedef Image<DistanceType, ImageDimension> DistanceImageType;
+  typedef signed char                         MarkerPixelType;
   typedef Image<signed char, ImageDimension>  MarkerImageType;
 
   typedef typename InputImageType::IndexType IndexType;
@@ -162,12 +163,15 @@ protected:
 
   void AfterThreadedGenerateData() ITK_OVERRIDE;
 
-  size_t FillCluster(const IndexType &idx, size_t label, int fill=0, LabelPixelType outLabel=0);
+  size_t RelabelClusterAndMark(const IndexType &idx,
+                               LabelPixelType label,
+                               MarkerPixelType fill=0,
+                               LabelPixelType outLabel=0);
 
   DistanceType Distance(const ClusterType &cluster1,
-                        const ClusterType &cluster2);
+                               const ClusterType &cluster2);
 
-  DistanceType Distance(const ClusterType &cluster,
+  inline DistanceType Distance(const ClusterType &cluster,
                         const InputPixelType &v,
                         const IndexType &idx)
     {
