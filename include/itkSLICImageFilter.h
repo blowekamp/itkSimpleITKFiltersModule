@@ -85,23 +85,56 @@ public:
 
   typedef FixedArray< unsigned int, ImageDimension > SuperGridSizeType;
 
+  /** \brief Weighting coefficient for the spatial distance
+   *
+   * The default value is 10. This default is useful for the CIE
+   * L*a*b*, which often has component range of [0,100], +/-100,
+   * +/-100. This value can be adjusted based on the range of the
+   * pixel space.
+   */
   itkSetMacro( SpatialProximityWeight, double );
   itkGetConstMacro( SpatialProximityWeight, double );
 
+  /** \brief Number of cluster iteration to perform.
+   */
   itkSetMacro( MaximumNumberOfIterations, unsigned int );
   itkGetConstMacro( MaximumNumberOfIterations, unsigned int );
 
+  /** \brief Size in pixel of the expected cluster size.
+   *
+   * The value can be anisotropic to provide a scaling weight
+   * per-dimension for the special proximity.
+   */
   itkSetMacro(SuperGridSize, SuperGridSizeType);
   void SetSuperGridSize(unsigned int factor);
   void SetSuperGridSize(unsigned int i, unsigned int factor);
 
+  /** \brief Enable additional step to clean disconnected labels.
+   *
+   * Relabel super grid labels to remove isolated components.
+   */
   itkSetMacro(LabelConnectivityEnforce, bool);
   itkGetMacro(LabelConnectivityEnforce, bool);
   itkBooleanMacro(LabelConnectivityEnforce);
 
+  /** \brief Minimum size of an independent components.
+   *
+   * This value is expressed as a ratio of the size of the component
+   * to the super grid size. The default is 0.25.
+   *
+   * When LabelConnectivity is enforced, any component smaller than
+   * this size if relabels the same as a neighboring component. Larger
+   * components are given a new label.
+   */
   itkSetMacro(LabelConnectivityMinimumSize, float);
   itkGetMacro(LabelConnectivityMinimumSize, float);
 
+  /** \brief Sequentially label the cluster components.
+   *
+   * False by default.
+   *
+   * The sequential algorithm is single threaded.
+   */
   itkSetMacro(LabelConnectivityRelabelSequential, bool);
   itkGetMacro(LabelConnectivityRelabelSequential, bool);
   itkBooleanMacro(LabelConnectivityRelabelSequential);
