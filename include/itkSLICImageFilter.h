@@ -19,6 +19,7 @@
 #define itkSLICImageFilter_h
 
 #include "itkImageToImageFilter.h"
+#include "itkIsSame.h"
 
 #include "itkBarrier.h"
 
@@ -130,9 +131,15 @@ protected:
 
   size_t FillCluster(const IndexType &idx, size_t label, int fill=0, LabelPixelType outLabel=0);
 
-  DistanceType Distance(const ClusterType &cluster1, const ClusterType &cluster2);
+  DistanceType Distance(const ClusterType &cluster1,
+                        const ClusterType &cluster2);
 
-  DistanceType Distance(const ClusterType &cluster, const InputPixelType &v, const PointType &pt);
+  DistanceType Distance(const ClusterType &cluster,
+                        const InputPixelType &v,
+                        const PointType &pt)
+    {
+      return Self::DistanceDispatched(cluster, v, pt);
+    }
 
   inline static void CreateClusterPoint( const InputPixelType &v,
                                          ClusterType &outCluster,
@@ -152,6 +159,59 @@ protected:
 private:
   SLICImageFilter(const Self &);    //purposely not implemented
   void operator=(const Self &);     //purposely not implemented
+
+  template<typename TPixelType>
+  inline DistanceType DistanceDispatched(const ClusterType &cluster,
+                                         const TPixelType &v,
+                                         const PointType &pt,
+                                         mpl::FalseType isScalar = typename IsSame<TPixelType, typename itk::NumericTraits<InputPixelType>::ValueType>::Type() )
+    {
+      const unsigned int s = cluster.size();
+      DistanceType d1 = 0.0;
+      DistanceType d2 = 0.0;
+      unsigned int i = 0;
+      for (; i<s-ImageDimension; ++i)
+        {
+        const DistanceType d = (cluster[i] - v[i]);
+        d1 += d*d;
+        }
+
+      for (unsigned int j = 0; j < ImageDimension; ++j, ++i)
+        {
+        const DistanceType d = (cluster[i] - pt[j])  * m_DistanceScales[j];
+        d2 += d*d;
+        }
+      d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;
+
+      return d1+d2;
+    }
+
+
+  inline DistanceType DistanceDispatched(const ClusterType &cluster,
+                                         const typename itk::NumericTraits<InputPixelType>::ValueType &v,
+                                         const PointType &pt )
+    {
+      const unsigned int s = cluster.size();
+      DistanceType d1 = 0.0;
+      DistanceType d2 = 0.0;
+      unsigned int i = 0;
+
+      {
+      const DistanceType d = (cluster[i] - v);
+      d1 += d*d;
+      ++i;
+      }
+
+      for (unsigned int j = 0; j < ImageDimension; ++j, ++i)
+        {
+        const DistanceType d = (cluster[i] - pt[j])  * m_DistanceScales[j];
+        d2 += d*d;
+        }
+      d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;
+
+      return d1+d2;
+    }
+
 
   SuperGridSizeType m_SuperGridSize;
   unsigned int      m_MaximumNumberOfIterations;

@@ -903,33 +903,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     d2 += d*d;
     }
   d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;
-  //d2 = std::sqrt(d2);
-  return d1+d2;
-}
 
-template<typename TInputImage, typename TOutputImage, typename TDistancePixel>
-typename SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>::DistanceType
-SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
-::Distance(const ClusterType &cluster, const InputPixelType &v, const PointType &pt)
-{
-  const unsigned int s = cluster.size();
-  DistanceType d1 = 0.0;
-  DistanceType d2 = 0.0;
-  unsigned int i = 0;
-  for (; i<s-ImageDimension; ++i)
-    {
-    const DistanceType d = (cluster[i] - v[i]);
-    d1 += d*d;
-    }
-  //d1 = std::sqrt(d1);
-
-  for (unsigned int j = 0; j < ImageDimension; ++j, ++i)
-    {
-    const DistanceType d = (cluster[i] - pt[j])  * m_DistanceScales[j];
-    d2 += d*d;
-    }
-  d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;
-  //d2 = std::sqrt(d2);
   return d1+d2;
 }
 
