@@ -301,13 +301,13 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
     {
-    const RefClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
+    RefClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
     typename InputImageType::RegionType localRegion;
     IndexType idx;
 
     for (unsigned int d = 0; d < ImageDimension; ++d)
       {
-      idx[d] = cluster[numberOfComponents+d];
+      idx[d] = Math::Round<IndexValueType>(cluster[numberOfComponents+d]);
       }
 
     localRegion.SetIndex(idx);
@@ -463,7 +463,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
     for (unsigned int d = 0; d < ImageDimension; ++d)
       {
-      idx[d] = cluster[numberOfComponents+d];
+      idx[d] = Math::Round<IndexValueType>(cluster[numberOfComponents+d]);
       }
 
     localRegion.SetIndex(idx);
@@ -584,8 +584,8 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
         {
 
-        RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
-        RefClusterType oldCluster(numberOfClusterComponents, &m_OldClusters[i*numberOfClusterComponents]);
+        const RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
+        const RefClusterType oldCluster(numberOfClusterComponents, &m_OldClusters[i*numberOfClusterComponents]);
         l1Residual += Distance(cluster,oldCluster);
         }
       itkDebugMacro( << "L1 residual: " << std::sqrt(l1Residual) );
@@ -635,7 +635,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
       for (unsigned int d = 0; d < ImageDimension; ++d)
         {
-        idx[d] = cluster[numberOfComponents+d];
+        idx[d] = Math::Round<IndexValueType>(cluster[numberOfComponents+d]);
         }
 
       // count
