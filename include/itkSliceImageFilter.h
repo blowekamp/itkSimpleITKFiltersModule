@@ -132,7 +132,7 @@ public:
 
 protected:
   SliceImageFilter();
-  // ~SliceImageFilter() {} default ok
+  ~SliceImageFilter() {}
   void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
 
   /** SliceImageFilter can be implemented as a multithreaded filter.
