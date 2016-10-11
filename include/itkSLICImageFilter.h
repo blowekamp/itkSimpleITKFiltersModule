@@ -202,18 +202,18 @@ private:
     {
       (void) isScalar;
       const unsigned int s = cluster.size();
-      DistanceType d1 = 0.0;
-      DistanceType d2 = 0.0;
+      double d1 = 0.0;
+      double d2 = 0.0;
       unsigned int i = 0;
       for (; i<s-ImageDimension; ++i)
         {
-        const DistanceType d = (cluster[i] - v[i]);
+        const double d = (cluster[i] - v[i]);
         d1 += d*d;
         }
 
       for (unsigned int j = 0; j < ImageDimension; ++j, ++i)
         {
-        const DistanceType d = (cluster[i] - idx[j])  * m_DistanceScales[j];
+        const double d = (cluster[i] - idx[j])  * m_DistanceScales[j];
         d2 += d*d;
         }
       d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;
@@ -226,19 +226,17 @@ private:
                                          const typename itk::NumericTraits<InputPixelType>::ValueType &v,
                                          const IndexType &idx )
     {
-      DistanceType d1 = 0.0;
-      DistanceType d2 = 0.0;
+      double d1 = 0.0;
+      double d2 = 0.0;
       unsigned int i = 0;
-
       {
-      const DistanceType d = (cluster[i] - v);
+      const double d = (cluster[i] - v);
       d1 += d*d;
-      ++i;
       }
-
+      i = 1;
       for (unsigned int j = 0; j < ImageDimension; ++j, ++i)
         {
-        const DistanceType d = (cluster[i] - idx[j])  * m_DistanceScales[j];
+        const double d = (cluster[i] - idx[j])  * m_DistanceScales[j];
         d2 += d*d;
         }
       d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;

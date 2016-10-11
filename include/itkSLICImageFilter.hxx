@@ -301,13 +301,13 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
   for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
     {
-    const RefClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
+    RefClusterType cluster(numberOfClusterComponents, &m_Clusters[i*numberOfClusterComponents]);
     typename InputImageType::RegionType localRegion;
     IndexType idx;
 
     for (unsigned int d = 0; d < ImageDimension; ++d)
       {
-      idx[d] = cluster[numberOfComponents+d];
+      idx[d] = Math::Round<IndexValueType>(cluster[numberOfComponents+d]);
       }
 
     localRegion.SetIndex(idx);
@@ -333,7 +333,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
         {
         const IndexType &currentIdx = inputIter.GetIndex();
 
-        const double distance = this->Distance(cluster,
+        const DistanceType distance = this->Distance(cluster,
                                                inputIter.Get(),
                                                currentIdx);
         if (distance < distanceIter.Get() )
@@ -463,7 +463,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
     for (unsigned int d = 0; d < ImageDimension; ++d)
       {
-      idx[d] = cluster[numberOfComponents+d];
+      idx[d] = Math::Round<IndexValueType>(cluster[numberOfComponents+d]);
       }
 
     localRegion.SetIndex(idx);
@@ -584,8 +584,8 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       for (size_t i = 0; i*numberOfClusterComponents < m_Clusters.size(); ++i)
         {
 
-        RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
-        RefClusterType oldCluster(numberOfClusterComponents, &m_OldClusters[i*numberOfClusterComponents]);
+        const RefClusterType cluster(numberOfClusterComponents,&m_Clusters[i*numberOfClusterComponents]);
+        const RefClusterType oldCluster(numberOfClusterComponents, &m_OldClusters[i*numberOfClusterComponents]);
         l1Residual += Distance(cluster,oldCluster);
         }
       itkDebugMacro( << "L1 residual: " << std::sqrt(l1Residual) );
@@ -635,7 +635,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 
       for (unsigned int d = 0; d < ImageDimension; ++d)
         {
-        idx[d] = cluster[numberOfComponents+d];
+        idx[d] = Math::Round<IndexValueType>(cluster[numberOfComponents+d]);
         }
 
       // count
@@ -826,7 +826,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
           else
             {
 
-            itkDebugMacro("Relabling big island of: " << m[outputIter.Get()] <<  " with new label: " << outputIter.Get() << "->" << nextLabel);
+            itkDebugMacro("Relabling big island of: " << outputIter.Get() <<  " with new label: " << outputIter.Get() << "->" << nextLabel);
             this->RelabelClusterAndMark(outputIter.GetIndex(), currLabel, 1, nextLabel);
 
             if ( nextLabel != NumericTraits<LabelPixelType>::max() )
@@ -872,19 +872,19 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
 ::Distance(const ClusterType &cluster1, const ClusterType &cluster2)
 {
   const unsigned int s = cluster1.size();
-  DistanceType d1 = 0.0;
-  DistanceType d2 = 0.0;
+  double d1 = 0.0;
+  double d2 = 0.0;
   unsigned int i = 0;
   for (; i<s-ImageDimension; ++i)
     {
-    const DistanceType d = (cluster1[i] - cluster2[i]);
+    const double d = (cluster1[i] - cluster2[i]);
     d1 += d*d;
     }
   //d1 = std::sqrt(d1);
 
   for (unsigned int j = 0; j < ImageDimension; ++j, ++i)
     {
-    const DistanceType d = (cluster1[i] - cluster2[i]) * m_DistanceScales[j];
+    const double d = (cluster1[i] - cluster2[i]) * m_DistanceScales[j];
     d2 += d*d;
     }
   d2 *= m_SpatialProximityWeight * m_SpatialProximityWeight;
