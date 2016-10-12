@@ -44,7 +44,6 @@ function( VariableListToArgs var_list args )
 endfunction( )
 
 list( APPEND ep_common_list
-  MAKECOMMAND
   CMAKE_BUILD_TYPE
   CMAKE_MAKE_PROGRAM
 
