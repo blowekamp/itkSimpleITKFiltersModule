@@ -130,6 +130,7 @@ ExternalProject_Add(${proj}
   CMAKE_CACHE_ARGS
     ${ep_common_args}
     ${ep_extra_args}
+    -Dgtest_disable_pthreads:BOOL=ON
     -DBUILD_SHARED_LIBS:BOOL=OFF
     -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=<BINARY_DIR>/lib
   INSTALL_COMMAND
