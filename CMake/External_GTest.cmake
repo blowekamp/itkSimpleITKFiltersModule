@@ -28,18 +28,22 @@ endif()
 #
 function( VariableListToArgs var_list args )
   foreach( var IN LISTS ${var_list} )
-    if( NOT ${var} STREQUAL "" AND DEFINED ${VAR} ) # if variable has been set
+    if( DEFINED ${var} AND NOT ${var} STREQUAL "" ) # if variable has been set
       get_property( type CACHE ${var} PROPERTY TYPE )
+      if (NOT "${type}" STREQUAL "")
+        set(type ":${type}")
+      else()
+        set(type ":UNINITIALIZED")
+      endif()
       set(value ${${var}})
       STRING( REPLACE ";" "$<SEMICOLON>" value "${value}" )
-      list( APPEND _args "-D${var}:${type}=${value}" )
+      list( APPEND _args "-D${var}${type}=${value}" )
     endif()
   endforeach()
   set( ${args} "${_args}" PARENT_SCOPE)
 endfunction( )
 
 list( APPEND ep_common_list
-  MAKECOMMAND
   CMAKE_BUILD_TYPE
   CMAKE_MAKE_PROGRAM
 
@@ -126,6 +130,7 @@ ExternalProject_Add(${proj}
   CMAKE_CACHE_ARGS
     ${ep_common_args}
     ${ep_extra_args}
+    -Dgtest_disable_pthreads:BOOL=ON
     -DBUILD_SHARED_LIBS:BOOL=OFF
     -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=<BINARY_DIR>/lib
   INSTALL_COMMAND
