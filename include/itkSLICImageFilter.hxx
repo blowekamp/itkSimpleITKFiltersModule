@@ -180,7 +180,15 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     totalErr[i] = size[i]%m_SuperGridSize[i];
 
     // the starting superpixel index
-    startIdx[i] = region.GetIndex()[i]+m_SuperGridSize[i]/2 + totalErr[i]/(strips[i]*2);
+    if (strips[i] != 0)
+      {
+      startIdx[i] = region.GetIndex()[i]+m_SuperGridSize[i]/2 + totalErr[i]/(strips[i]*2);
+      }
+    else
+      {
+      strips[i] = 1;
+      startIdx[i] = region.GetIndex()[i]+ totalErr[i]/2;
+      }
     idx[i] = startIdx[i];
 
     // with integer math keep track of the remaining odd pixel.
