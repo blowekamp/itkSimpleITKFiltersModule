@@ -1,6 +1,12 @@
 General
 =======
 
+.. image:: https://ci.appveyor.com/api/projects/status/je74aykgrftxxkdd/branch/master?svg=true     
+    :target: https://ci.appveyor.com/project/blowekamp/itksimpleitkfiltersmodule-muow0/branch/master
+    
+.. image:: https://travis-ci.org/SimpleITK/itkSimpleITKFiltersModule.svg?branch=master
+    :target: https://travis-ci.org/SimpleITK/itkSimpleITKFiltersModule
+     
 This is a module for `ITK <http://itk.org>`_: The Insight Toolkit for Segmentation and
 Registration. It is designed to work with the ITKv4
 modular system and  to be places it ITK/Modules/External or uses as a
