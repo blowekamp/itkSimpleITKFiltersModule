@@ -53,7 +53,7 @@ itk_add_test(NAME itkSLICImageFilterTest1
 
 itk_add_test(NAME itkSLICImageFilterTest2
   COMMAND ${itk-module}TestDriver
-   --with-threads 80
+   --with-threads "$<$<CONFIG:Debug>:10>$<$<NOT:$<CONFIG:Debug>>:80>"
    --compare  DATA{Baseline/itkSLICImageFilterTest1Baseline.nii}
               ${TEMP}/itkSLICImageFilterTest2Output.nii
    itkSLICImageFilterTest
