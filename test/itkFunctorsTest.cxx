@@ -21,6 +21,7 @@
 #include "itkBitwiseNotFunctor.h"
 #include "itkDivideFloorFunctor.h"
 #include "itkDivideRealFunctor.h"
+#include "itkUnaryMinusFunctor.h"
 
 #include "gtest/gtest.h"
 
@@ -69,4 +70,16 @@ TEST(DivideRealFunctorTest, Test1)
   EXPECT_FALSE(f!=f);
 
   EXPECT_FLOAT_EQ(2.5, f(5,2));
+}
+
+TEST(UnaryMinusFunctorTest, Test1)
+{
+  itk::Functor::UnaryMinus<float,float> f;
+
+  EXPECT_TRUE(f==f);
+  EXPECT_FALSE(f!=f);
+
+  EXPECT_EQ(-1.0f, f(1.0f));
+  EXPECT_EQ(1.0f, f(-1.0f));
+  EXPECT_EQ(0.0f, f(0.0f));
 }
