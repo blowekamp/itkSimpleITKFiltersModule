@@ -7,6 +7,7 @@ set(${itk-module}Tests
   itkObjectnessMeasureImageFilterTest.cxx
   itkHessianImageFilterTest.cxx
   itkSLICImageFilterTest.cxx
+  itkSLICImageFilterTest2.cxx
 )
 
 
@@ -42,7 +43,7 @@ itk_add_test(NAME itkObjectnessMeasureImageFilterTest2
 add_test(NAME itkHessianImageFilterTest
       COMMAND ${itk-module}TestDriver itkHessianImageFilterTest )
 
-itk_add_test(NAME itkSLICImageFilterTest1
+itk_add_test(NAME itkSLICImageFilterTest_1
   COMMAND ${itk-module}TestDriver
    --with-threads 1
    --compare  DATA{Baseline/itkSLICImageFilterTest1Baseline.nii}
@@ -51,7 +52,7 @@ itk_add_test(NAME itkSLICImageFilterTest1
    DATA{Input/VM1111Shrink-LAB.mha}
    ${TEMP}/itkSLICImageFilterTest1Output.nii 25 )
 
-itk_add_test(NAME itkSLICImageFilterTest2
+itk_add_test(NAME itkSLICImageFilterTest_2
   COMMAND ${itk-module}TestDriver
    --with-threads 80
    --compare  DATA{Baseline/itkSLICImageFilterTest1Baseline.nii}
@@ -60,13 +61,18 @@ itk_add_test(NAME itkSLICImageFilterTest2
    DATA{Input/VM1111Shrink-LAB.mha}
    ${TEMP}/itkSLICImageFilterTest2Output.nii 25 )
 
-itk_add_test(NAME itkSLICImageFilterTest3
+itk_add_test(NAME itkSLICImageFilterTest_3
   COMMAND ${itk-module}TestDriver
     --compare  DATA{Baseline/itkSLICImageFilterTest3Baseline.nii}
               ${TEMP}/itkSLICImageFilterTest3Output.nii
    itkSLICImageFilterTest
    DATA{Input/cthead1.png}
    ${TEMP}/itkSLICImageFilterTest3Output.nii 20 )
+
+
+itk_add_test(NAME itkSLICImageFilterTest2
+  COMMAND ${itk-module}TestDriver
+   itkSLICImageFilterTest2 )
 
 #
 # GTest based tests
