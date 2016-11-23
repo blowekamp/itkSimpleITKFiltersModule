@@ -197,10 +197,8 @@ private:
   template<typename TPixelType>
   inline DistanceType DistanceDispatched(const ClusterType &cluster,
                                          const TPixelType &v,
-                                         const IndexType &idx,
-                                         mpl::FalseType isScalar = typename IsSame<TPixelType, typename itk::NumericTraits<InputPixelType>::ValueType>::Type() )
+                                         const IndexType &idx)
     {
-      (void) isScalar;
       const unsigned int s = cluster.size();
       double d1 = 0.0;
       double d2 = 0.0;
