@@ -614,7 +614,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
       m_MarkerImage->CopyInformation(inputImage);
       m_MarkerImage->SetBufferedRegion( region );
       m_MarkerImage->Allocate();
-      m_MarkerImage->FillBuffer(-2.0);
+      m_MarkerImage->FillBuffer(-2);
       }
     m_Barrier->Wait();
 
@@ -763,7 +763,7 @@ SLICImageFilter<TInputImage, TOutputImage, TDistancePixel>
     if (m_LabelConnectivityRelabelSequential)
       {
       missedLabels.push_back(0);
-      m_MarkerImage->FillBuffer(-1.0);
+      m_MarkerImage->FillBuffer(-1);
       }
     else
       {
